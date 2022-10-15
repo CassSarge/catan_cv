@@ -15,7 +15,7 @@ if __name__ == '__main__' :
 
     # Get just the part of the frame that has the board in it
     dilatedImg = imo.dilation(10, ct.getOceanThreshold(frame))
-    x,y,w,h = imo.largestContourCrop(frame, dilatedImg)
+    x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     contourCropped = frame[y:y+h, x:x+w]
 
     # Find the homography transform
@@ -26,6 +26,8 @@ if __name__ == '__main__' :
     cv2.imshow("Matched points", matchedPoints)
 
     cv2.waitKey(0)
+
+    cv2.destroyAllWindows()
 
     while(True):
         
@@ -38,7 +40,18 @@ if __name__ == '__main__' :
 
         # Display the resulting frame
         cv2.imshow('Adjusted Frame Live', adjustedImage)
-        
+
+        forestThreshold = ct.getForestThreshold(adjustedImage)
+        forestBoxes = imo.NLargestContoursDetect(4, adjustedImage, forestThreshold, "Forest")
+
+        #fieldThreshold = ct.getFieldThreshold(adjustedImage)
+        #fieldBoxes = imo.NLargestContoursDetect(4, forestBoxes, fieldThreshold, "Field")
+
+
+        cv2.imshow("boxes", forestBoxes)
+        cv2.imshow("threshold", forestThreshold)
+
+
         # the 'q' button is set as the quitting button you may use any
         # desired button of your choice
         if cv2.waitKey(1) & 0xFF == ord('q'):

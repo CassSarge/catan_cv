@@ -1,4 +1,5 @@
 import cv2
+from matplotlib.animation import ImageMagickBase
 
 def dilation(dilationSize, img):
     dilatation_size = dilationSize
@@ -8,7 +9,7 @@ def dilation(dilationSize, img):
     dilated_img = cv2.dilate(img, element)
     return dilated_img
 
-def largestContourCrop(img, thresh):
+def largestContourDetect(img, thresh):
     # Find Canny edges
     edged = cv2.Canny(thresh, 30, 200)
     
@@ -27,7 +28,27 @@ def largestContourCrop(img, thresh):
     x,y,w,h= cv2.boundingRect(sorted_contours[0])
         
     # cv2.waitKey(0)
-    
-    # print("Number of Contours found = " + str(len(contours)))
 
     return x,y,w,h
+
+def NLargestContoursDetect(N, img, thresh, name):
+    # Find Canny edges
+    edged = cv2.Canny(thresh, 30, 200)
+    
+    contours, hierarchy = cv2.findContours(edged, 
+        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
+    #print(sorted_contours[0])
+    # cv2.drawContours(img, contours, -1, (0,255,0), 1)
+
+    for (i,c) in enumerate(sorted_contours):
+        if i < N:
+            #print(i)
+            x,y,w,h= cv2.boundingRect(c)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255,0,0), 4)  
+            cv2.putText(img, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0,0), 2)
+        else:
+            break
+
+    return img
