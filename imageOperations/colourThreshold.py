@@ -2,12 +2,13 @@ import numpy as np
 import cv2
 import argparse
 
-def openAndClose(img_threshold, ksize):
+def closeAndOpen(img_threshold, ksize):
 
     kernel1 = np.ones((ksize,ksize),np.uint8)
-    img_threshold = cv2.morphologyEx(img_threshold, cv2.MORPH_OPEN, kernel1)
-    kernel2 = np.ones((ksize*2,ksize*2),np.uint8)
-    img_threshold = cv2.morphologyEx(img_threshold, cv2.MORPH_CLOSE, kernel2)
+    img_threshold = cv2.morphologyEx(img_threshold, cv2.MORPH_CLOSE, kernel1)
+
+    kernel2 = np.ones((int(ksize*1.8),int(ksize*1.8)),np.uint8)
+    img_threshold = cv2.morphologyEx(img_threshold, cv2.MORPH_OPEN, kernel2)
 
     return img_threshold
 
@@ -18,7 +19,7 @@ def getFieldThreshold(rgb_image):
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_field, upper_field)
 
-    img_threshold = openAndClose(img_threshold, 8)
+    img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
 
@@ -33,19 +34,22 @@ def getOceanThreshold(rgb_image):
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_ocean, upper_ocean)
 
-    img_threshold = openAndClose(img_threshold, 8)
+    img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
 
 def getForestThreshold(rgb_image):
 
-    lower_forest = np.array([0.076*179,0.176*255,0.086*255])
-    upper_forest = np.array([0.189*179,0.927*255,0.410*255])
+    # lower_forest = np.array([0.076*179,0.176*255,0.086*255])
+    # upper_forest = np.array([0.189*179,0.927*255,0.410*255])
+
+    lower_forest = np.array([0.096*179,0.010*255,0.004*255])
+    upper_forest = np.array([0.201*179,0.521*255,0.601*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_forest, upper_forest)
 
-    img_threshold = openAndClose(img_threshold, 8)
+    img_threshold = closeAndOpen(img_threshold, 10)
 
     return img_threshold
 
