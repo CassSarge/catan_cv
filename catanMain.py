@@ -3,12 +3,29 @@ import cv2
 import homography as hg
 import colourThreshold as ct
 import imgMorphologyOperations as imo
+from datetime import datetime
+# from adaptiveHistogramEqualisation import adaptiveHistEq
 
+def getBoxes(img):
+
+    forestThreshold = ct.getForestThreshold(adjustedImage)
+    img = imo.NLargestContoursDetect(4, adjustedImage, forestThreshold, "Forest")
+
+    cv2.imshow("threshold", forestThreshold)
+    #fieldThreshold = ct.getFieldThreshold(adjustedImage)
+    #fieldBoxes = imo.NLargestContoursDetect(4, forestBoxes, fieldThreshold, "Field")
+
+    return img
 
 if __name__ == '__main__' :
 
     # Define a video capture object
-    vid = cv2.VideoCapture(0)
+    vid = cv2.VideoCapture(1)
+
+    # Ensure camera is working
+    if not vid.isOpened():
+        print("Cannot open camera")
+        exit()
 
     # Do setup stuff
     ret, frame = vid.read()
@@ -27,6 +44,8 @@ if __name__ == '__main__' :
 
     cv2.waitKey(0)
 
+    cv2.imwrite("catanImages/adjustedImg.png", adjustedImage)
+
     cv2.destroyAllWindows()
 
     while(True):
@@ -41,16 +60,12 @@ if __name__ == '__main__' :
         # Display the resulting frame
         cv2.imshow('Adjusted Frame Live', adjustedImage)
 
-        forestThreshold = ct.getForestThreshold(adjustedImage)
-        forestBoxes = imo.NLargestContoursDetect(4, adjustedImage, forestThreshold, "Forest")
+        # gridsize = 16
+        # adaptiveHistEq(adjustedImage, gridsize)
 
-        #fieldThreshold = ct.getFieldThreshold(adjustedImage)
-        #fieldBoxes = imo.NLargestContoursDetect(4, forestBoxes, fieldThreshold, "Field")
+        boxedImg = getBoxes(adjustedImage)
 
-
-        cv2.imshow("boxes", forestBoxes)
-        cv2.imshow("threshold", forestThreshold)
-
+        cv2.imshow("boxes", boxedImg)
 
         # the 'q' button is set as the quitting button you may use any
         # desired button of your choice
