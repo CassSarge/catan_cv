@@ -41,6 +41,9 @@ if __name__ == '__main__' :
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     contourCropped = frame[y:y+h, x:x+w]
 
+    cv2.imshow("Cropped image", contourCropped)
+    cv2.waitKey(0)
+
     # Find the homography transform
     templateImage = cv2.imread(f'{args.img_dir}/catanBoardTransparent2.png', 0)
     matchedPoints, adjustedImage, M = hg.homographyTilt(contourCropped, templateImage)
