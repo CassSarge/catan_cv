@@ -23,11 +23,16 @@ def getFieldThreshold(rgb_image):
 
 def getOceanThreshold(rgb_image):
 
-    lower_ocean = np.array([0.563*179,0.093*255,0.569*255])
-    upper_ocean = np.array([0.619*179,0.772*255,0.902*255])
+    # lower_ocean = np.array([0.563*179,0.093*255,0.569*255])
+    # upper_ocean = np.array([0.619*179,0.772*255,0.902*255])
+
+    lower_ocean = np.array([0.572*179,0.000*255,0.512*255])
+    upper_ocean = np.array([0.732*179,0.840*255,0.755*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_ocean, upper_ocean)
+
+    img_threshold = openAndClose(img_threshold, 8)
 
     return img_threshold
 
