@@ -58,8 +58,8 @@ def homographyTilt(tiltedImage, templateImage):
 
 
 if __name__ == '__main__' :
-    templateImage = cv2.imread('catanImages/catanBoardTransparent3.png', 0)
-    tiltedImage = cv2.imread('catanImages/20221014_112646.jpg')
+    templateImage = cv2.imread('catanImages/catanBoardTransparent2.png', 0)
+    tiltedImage = cv2.imread('catanImages/20221014_112636.jpg')
     #tiltedImage = 'catanImages/20221014_112641.jpg'
 
     
