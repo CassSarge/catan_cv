@@ -4,6 +4,7 @@ import homography as hg
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 from datetime import datetime
+import argparse
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
 def getBoxes(img):
@@ -18,6 +19,11 @@ def getBoxes(img):
     return img
 
 if __name__ == '__main__' :
+
+    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser.add_argument('img_dir', help='Path to testing images')
+
+    args = parser.parse_args()
 
     # Define a video capture object
     vid = cv2.VideoCapture(1)
@@ -36,7 +42,7 @@ if __name__ == '__main__' :
     contourCropped = frame[y:y+h, x:x+w]
 
     # Find the homography transform
-    templateImage = cv2.imread('catanImages/catanBoardTransparent2.png', 0)
+    templateImage = cv2.imread(f'{args.img_dir}/catanBoardTransparent2.png', 0)
     matchedPoints, adjustedImage, M = hg.homographyTilt(contourCropped, templateImage)
 
     cv2.imshow("Warped Source Image", adjustedImage)
@@ -44,7 +50,7 @@ if __name__ == '__main__' :
 
     cv2.waitKey(0)
 
-    cv2.imwrite("catanImages/adjustedImg.png", adjustedImage)
+    cv2.imwrite(f"{args.img_dir}/adjustedImg.png", adjustedImage)
 
     cv2.destroyAllWindows()
 

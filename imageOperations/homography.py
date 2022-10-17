@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import argparse
 
 def homographyTilt(tiltedImage, templateImage):
     
@@ -58,8 +59,14 @@ def homographyTilt(tiltedImage, templateImage):
 
 
 if __name__ == '__main__' :
-    templateImage = cv2.imread('catanImages/catanBoardTransparent2.png', 0)
-    tiltedImage = cv2.imread('catanImages/20221014_112636.jpg')
+
+    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser.add_argument('img_dir', help='Path to testing images')
+
+    args = parser.parse_args()
+
+    templateImage = cv2.imread(f'{args.img_dir}/catanBoardTransparent2.png', 0)
+    tiltedImage = cv2.imread(f'{args.img_dir}/20221014_112636.jpg')
     #tiltedImage = 'catanImages/20221014_112641.jpg'
 
     
@@ -69,6 +76,6 @@ if __name__ == '__main__' :
     cv2.imshow("Matched Points", matchedPoints)
 
     # Save image
-    cv2.imwrite('catanImages/adjustedImg.png', adjustedImage)
+    cv2.imwrite(f'{args.img_dir}/adjustedImg.png', adjustedImage)
 
     cv2.waitKey(0)

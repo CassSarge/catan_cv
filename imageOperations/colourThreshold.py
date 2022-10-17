@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import argparse
 
 def openAndClose(img_threshold, ksize):
 
@@ -50,7 +51,12 @@ def getForestThreshold(rgb_image):
 
 if __name__ == '__main__' :
 
-    img = cv2.imread("catanImages/adjustedImg.png")
+    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser.add_argument('img_dir', help='Path to testing images')
+
+    args = parser.parse_args()
+
+    img = cv2.imread(f"{args.img_dir}/adjustedImg.png")
 
     #cv2.imshow("Adjusted image", img)
     #cv2.waitKey(0)

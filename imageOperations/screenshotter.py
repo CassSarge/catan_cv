@@ -3,9 +3,15 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 from datetime import datetime
+import argparse
 
 
 if __name__ == '__main__' :
+
+    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser.add_argument('img_dir', help='Path to testing images')
+
+    args = parser.parse_args()
 
     # Define a video capture object
     vid = cv2.VideoCapture(1)
@@ -35,7 +41,7 @@ if __name__ == '__main__' :
         if cv2.waitKey(1) == ord('s'):
             now = datetime.now()
             current_time = now.strftime("%H:%M:%S")
-            img_name = "catanImages/screenshot" + current_time + ".png"
+            img_name = f"{args.img_dir}/screenshot" + current_time + ".png"
             cv2.imwrite(img_name, frame)
             print('Screenshot ', img_name, ' saved')
 
