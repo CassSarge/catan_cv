@@ -40,7 +40,7 @@ class TileThresholder:
         else:
             self.autocalibrate()
         print(
-            f"Origin: {self.origin}, Right: {self.delta_r},  Down Left: {self.delta_dl}, Down Right: {self.delta_dr}"
+            f"Origin: {self.origin}, Right: {self.delta_r}, Down Right: {self.delta_dr}, Down Left: {self.delta_dl}"
         )
 
     def calibrate(self):
@@ -82,23 +82,25 @@ class TileThresholder:
                 (x, y) = thresholder.getTileCoords(i, j)
                 yield (x, y)
 
+    listOfKeyPoints = [
+        "Centre of top row leftmost tile",
+        "Centre of top row 4rd tile",
+        "Centre of last row final tile",
+        "Centre of last row first tile" "Please Press Esc",
+    ]
 
-listOfKeyPoints = [
-    "Centre of top row leftmost tile",
-    "Centre of top row 4rd tile",
-    "Centre of last row final tile",
-    "Centre of last row first tile" "Please Press Esc",
-]
-
-list_iter = iter(listOfKeyPoints)
+    list_iter = iter(listOfKeyPoints)
 
 
 def printMouseCoords(event, x, y, flags, param):
 
     if event == cv2.EVENT_LBUTTONDOWN:
         param.append(PixelCoords(x, y))
-        print(list_iter.__next__())
+        print(TileThresholder.list_iter.__next__())
 
+def getBoundingBox(img: np.ndarray, coords: PixelCoords, size: int):
+    # returns the bounding box of size size at the tile at coords in img as a numpy array
+    pass
 
 if __name__ == "__main__":
 
@@ -117,8 +119,8 @@ if __name__ == "__main__":
     print(PixelCoords(10, 6) // 3)
 
     img = cv2.imread(args.image)
-    print(list_iter.__next__())
-    thresholder = TileThresholder(img)
+    print(TileThresholder.list_iter.__next__())
+    thresholder = TileThresholder(img, calibrate=args.calibrate)
     # thresholder = TileThresholder(img, calibrate=True)
     for (x, y) in thresholder:
         print((x, y))
