@@ -105,6 +105,7 @@ if __name__ == "__main__":
         description="Calculates the thresholds for each type of tile based on a given image from above the Catan board"
     )
     parser.add_argument("image", help="Path to the image")
+    parser.add_argument("-c", "--calibrate", action="store_true", help="Calibrate the position of the tiles, based on user input")
     args = parser.parse_args()
 
     print(PixelCoords(10,6)//3)
@@ -117,7 +118,7 @@ if __name__ == "__main__":
         print((x,y))
         cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
         bb_size = 40
-            cv2.rectangle(img, (x-bb_size, y-bb_size), (x+bb_size, y+bb_size), (0, 255, 0), 2)
+        cv2.rectangle(img, (x-bb_size, y-bb_size), (x+bb_size, y+bb_size), (0, 255, 0), 2)
     
     print("Showing image")
     
