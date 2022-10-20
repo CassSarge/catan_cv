@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import argparse
+from matplotlib import pyplot as plt
 
 
 class PixelCoords:
@@ -100,7 +101,31 @@ def printMouseCoords(event, x, y, flags, param):
 
 def getBoundingBox(img: np.ndarray, coords: PixelCoords, size: int):
     # returns the bounding box of size size at the tile at coords in img as a numpy array
-    pass
+    (x,y) = coords
+    print((x,y))
+    bb = img[y-size//2:y+size//2, x-size//2:x+size//2, :]
+    return bb
+
+def getMetric(img: np.ndarray, coords: PixelCoords, size: int):
+    # returns the histogram of the bounding box of size size at the tile at coords in img
+    # get bounding box
+    bb = getBoundingBox(img, coords, size)
+    cv2.imshow("bounding box", bb)
+    # cv2.waitKey(0)
+    # # calc avg hue 
+    # hue_avg = bb.mean(axis=(0,1))
+
+    # calc histogram in HSV space
+    hist = cv2.calcHist([bb], [0], None, [179], [0, 179])
+
+    return hist
+
+def autoThreshold(tt: TileThresholder, img: np.ndarray, size: int):
+    # returns a numpy array of the same shape as img with the thresholded values
+    metrics = np.array([getMetric(img, coords, size) for coords in tt])
+    print(len(metrics))
+    print(metrics)
+    return metrics
 
 if __name__ == "__main__":
 
@@ -116,21 +141,67 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    print(PixelCoords(10, 6) // 3)
-
-    img = cv2.imread(args.image)
+    img_bgr = cv2.imread(args.image)
+    img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
     print(TileThresholder.list_iter.__next__())
-    thresholder = TileThresholder(img, calibrate=args.calibrate)
+    thresholder = TileThresholder(img_bgr, calibrate=args.calibrate)
     # thresholder = TileThresholder(img, calibrate=True)
+    print("Showing image")
+
+    hue_hists = autoThreshold(thresholder, img, 80)
+
+    label = [0,1,2,1,3,2,4,3,2,4,3,1,0,5,0,2,4,1,3] 
+    # # for each histogram in hue_hists, plot it with a title corresponding to the value in the label list
+    # for i in [4, 7, 10, 18]: WHEAT
+    # for i in [0, 12, 14]: ROCK
+    for i in [3, 5, 8, 15]:
+        plt.plot(hue_hists[i])
+        plt.title(label[i])
+        plt.xlim([0,179])
+        plt.show()
+
+    # calculate the histogram of img and plot it
+    # hist = cv2.calcHist([img], [0], None, [179], [0, 60])
+    # plt.plot(hist)
+    # plt.xlim([0,179]) 
+
+    plt.show()
+
     for (x, y) in thresholder:
         print((x, y))
-        cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
+        cv2.circle(img_bgr, (x, y), 5, (0, 0, 255), -1)
         bb_size = 40
         cv2.rectangle(
             img, (x - bb_size, y - bb_size), (x + bb_size, y + bb_size), (0, 255, 0), 2
         )
 
-    print("Showing image")
+
+    
+
+
+
+
+
+    # plt.plot(hue_hists[0], color='r')
+    
+    
+    
+    
+    # print(hue_averages)
+    # hue = hue_averages[:,0]
+    # sat = hue_averages[:,1]
+    # val = hue_averages[:,2]
+    # label = [0,1,2,1,3,2,4,3,2,4,3,1,0,5,0,2,4,1,3]
+    # colors = ["rock", "field", "forest", "wheat", "clay", "desert"]
+
+
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d')
+    # ax.scatter(hue, sat, val, marker='o', c=label)
+
+    # ax.set_xlabel('B')
+    # ax.set_ylabel('G')
+    # ax.set_zlabel('R')
 
     cv2.imshow("image with labelled tiles", img)
     cv2.waitKey(5000)
