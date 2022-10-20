@@ -79,7 +79,7 @@ class TileThresholder:
         row_lengths = [3, 4, 5, 4, 3]
         for i, rng in enumerate(row_lengths):
             for j in range(rng):
-                (x, y) = thresholder.getTileCoords(i, j)
+                (x, y) = self.getTileCoords(i, j)
                 yield (x, y)
 
     listOfKeyPoints = [
