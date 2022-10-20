@@ -3,8 +3,8 @@ import cv2
 import homography as hg
 import colourThreshold as ct
 import imgMorphologyOperations as imo
-from datetime import datetime
 import argparse
+import tileThreshold as tt
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
 def getBoxes(img):
@@ -53,7 +53,7 @@ if __name__ == '__main__' :
 
     cv2.waitKey(0)
 
-    cv2.imwrite(f"{args.img_dir}/adjustedImg.png", adjustedImage)
+    #cv2.imwrite(f"{args.img_dir}/adjustedImg.png", adjustedImage)
 
     cv2.destroyAllWindows()
 
@@ -66,15 +66,26 @@ if __name__ == '__main__' :
         cropped_frame = frame[y:y+h, x:x+w]
         adjustedImage = cv2.warpPerspective(cropped_frame, M, (templateImage.shape[1],templateImage.shape[0]))
 
+        #adjustedImage = cv2.imread(f'{args.img_dir}/adjustedImg.png')
+
         # Display the resulting frame
         cv2.imshow('Adjusted Frame Live', adjustedImage)
 
-        # gridsize = 16
-        # adaptiveHistEq(adjustedImage, gridsize)
+        thresholdedImg = adjustedImage.copy()
 
-        boxedImg = getBoxes(adjustedImage)
+        # # print(tt.TileThresholder.list_iter.__next__())
+        thresholder = tt.TileThresholder(thresholdedImg)
+        # # thresholder = TileThresholder(img, calibrate=True)
+        for (x2, y2) in thresholder:
+            cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
+            bb_size = 40
+            cv2.rectangle(
+                thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
+            )
 
-        cv2.imshow("boxes", boxedImg)
+        # print("Showing image")
+
+        cv2.imshow("image with labelled tiles", thresholdedImg)
 
         # the 'q' button is set as the quitting button you may use any
         # desired button of your choice
