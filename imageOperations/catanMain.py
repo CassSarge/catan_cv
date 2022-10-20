@@ -5,6 +5,7 @@ import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
+import featureMatchTiles as fmt
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
 def getBoxes(img):
@@ -57,6 +58,8 @@ if __name__ == '__main__' :
 
     cv2.destroyAllWindows()
 
+    rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg = fmt.loadTemplateImgs(args.img_dir)
+
     while(True):
         
         # Capture the video frame by frame
@@ -77,11 +80,16 @@ if __name__ == '__main__' :
         thresholder = tt.TileThresholder(thresholdedImg)
         # # thresholder = TileThresholder(img, calibrate=True)
         for (x2, y2) in thresholder:
-            cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
             bb_size = 40
+            currentTileImg = adjustedImage[y2:y2+bb_size, x2:x2+bb_size]
+            cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
             cv2.rectangle(
                 thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
             )
+            fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
+            #cv2.imshow("Current Tile", currentTileImg)
+            #cv2.waitKey(0)
+
 
         # print("Showing image")
 
