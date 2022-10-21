@@ -2,6 +2,19 @@ import numpy as np
 import cv2
 import argparse
 
+def getThresholds(rgb_image, inlecture = False):
+    img_wheat = getWheatThreshold(rgb_image, inlecture)
+    img_rock = getRockThreshold(rgb_image, inlecture)
+    img_field = getFieldThreshold(rgb_image, inlecture)
+    img_clay = getClayThreshold(rgb_image, inlecture)
+    img_forest = getForestThreshold(rgb_image, inlecture)
+    # img_desert = getDesertThreshold(rgb_image, inlecture)
+
+    results = {"wheat": img_wheat, "rock": img_rock, "field": img_field, "clay":
+            img_clay, "forest": img_forest}
+    
+    return results 
+
 def closeAndOpen(img_threshold, ksize):
 
     kernel1 = np.ones((ksize,ksize),np.uint8)
