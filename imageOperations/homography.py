@@ -43,6 +43,7 @@ def homographyTilt(tiltedImage, templateImage):
     else:
         print( "Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT) )
         matchesMask = None
+        return None, None, None
 
     draw_params = dict(matchColor = (0,255,0), # draw matches in green color
                     singlePointColor = None,
