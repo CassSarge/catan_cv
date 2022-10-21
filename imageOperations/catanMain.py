@@ -100,45 +100,45 @@ if __name__ == '__main__' :
 
     cv2.destroyAllWindows()
 
-    # while(True):
+    while(True):
         
-    #     # Capture the video frame by frame
-    #     ret, frame = vid.read()
+        # Capture the video frame by frame
+        ret, frame = vid.read()
 
-    #     # Do stuff
-    #     cropped_frame = frame[y:y+h, x:x+w]
-    #     adjustedImage = cv2.warpPerspective(cropped_frame, M, (templateImage.shape[1],templateImage.shape[0]))
+        # Do stuff
+        cropped_frame = frame[y:y+h, x:x+w]
+        adjustedImage = cv2.warpPerspective(cropped_frame, M, (templateImage.shape[1],templateImage.shape[0]))
 
-    #     # Display the resulting frame
-    #     cv2.imshow('Adjusted Frame Live', adjustedImage)
+        # Display the resulting frame
+        cv2.imshow('Adjusted Frame Live', adjustedImage)
 
-    #     thresholdedImg = adjustedImage.copy()
+        thresholdedImg = adjustedImage.copy()
 
-    #     thresholder = tt.TileThresholder(thresholdedImg)
+        thresholder = tt.TileThresholder(thresholdedImg)
 
-    #     for i, (x2, y2) in enumerate(thresholder):
-    #         bb_size = 40
-    #         currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
-    #         cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
-    #         cv2.rectangle(
-    #             thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
-    #         )
+        for i, (x2, y2) in enumerate(thresholder):
+            bb_size = 40
+            currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
+            cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
+            cv2.rectangle(
+                thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
+            )
 
-    #         #cv2.imshow("Current Tile", currentTileImg)
-    #         thresholds = ct.getThresholds(currentTileImg)
-    #         # for (k,v) in thresholds.items():
-    #         #     print(f"Count for {k} is {cv2.countNonZero(v)}")
+            #cv2.imshow("Current Tile", currentTileImg)
+            thresholds = ct.getThresholds(currentTileImg)
+            # for (k,v) in thresholds.items():
+            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
 
-    #         # print out the key for the largest value size
-    #         print(f"Tile {i} is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
-    #         cv2.putText(thresholdedImg, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            # print out the key for the largest value size
+            print(f"Tile {i} is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
+            cv2.putText(thresholdedImg, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-    #     cv2.imshow("image with labelled tiles", thresholdedImg)
+        cv2.imshow("image with labelled tiles", thresholdedImg)
 
-    #     # the 'q' button is set as the quitting button you may use any
-    #     # desired button of your choice
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
+        # the 'q' button is set as the quitting button you may use any
+        # desired button of your choice
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
     #     time.sleep(0.5)
 
