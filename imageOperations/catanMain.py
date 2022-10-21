@@ -23,12 +23,13 @@ def getBoxes(img):
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
-    parser.add_argument('img_dir', help='Path to testing images')
+    parser.add_argument('img_dir', help='Path to testing images', default="catanImages/")
+    parser.add_argument('video_index', help='Index of video to process', type=int, default=1)
 
     args = parser.parse_args()
 
     # Define a video capture object
-    vid = cv2.VideoCapture(1)
+    vid = cv2.VideoCapture(args.video_index)
 
     # Ensure camera is working
     if not vid.isOpened():
