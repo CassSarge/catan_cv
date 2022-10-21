@@ -29,18 +29,25 @@ class BoardGrabber:
         return frame[y:y+h, x:x+w]
 
     def getFrame(self):
+        return cv2.imread("catanImages/screenshot10:16:54.png")
         (ret, frame) = self.vid.read()
         if ret:
             return frame
         else:
             raise ValueError("Unable to read frame")
-        
+
+    def getFlattenedFrame(self):
+        img = self.getCroppedFrame(*self.cropCoords)
+        template = cv2.imread(self.board_template, 0)
+
+        adjustedImage = cv2.warpPerspective(img, self.M, (template.shape[1],template.shape[0]))
+        return adjustedImage
     
     def getHomographyTF(self):
         while True:
             frame = self.getFrame()
 
-            dilated = imo.dilation(45, ct.getOceanThreshold(frame))
+            dilated = imo.dilation(20, ct.getOceanThreshold(frame))
             x,y,w,h = imo.largestContourDetect(frame, dilated)
 
             cropped = frame[y:y+h, x:x+w]
@@ -50,9 +57,9 @@ class BoardGrabber:
 
             # Find the homography transform
             template = cv2.imread(self.board_template, 0)
-            matchedPoints, flattened, self.M = hg.homographyTilt(cropped, template)
+            matchedPoints, flattened, M = hg.homographyTilt(cropped, template)
 
-            if self.M is None:
+            if M is None:
                 continue
 
             cv2.imshow("Warped Source Image", flattened)
@@ -61,17 +68,12 @@ class BoardGrabber:
             print("Is this a good homography? [y/n]")
 
             if cv2.waitKey(0) & 0xFF == ord('y'):
+                self.M = M
                 self.tilesImage = flattened
-                self.x = x
-                self.y = y
-                self.w = w
-                self.h = h
+                self.cropCoords = (x, y, w, h)
                 return
             elif cv2.waitKey(0) & 0xFF == ord('n'):
                 self.M = None
-
-            cv2.destroyAllWindows()
-
 
 if __name__ == '__main__' :
 
@@ -101,15 +103,9 @@ if __name__ == '__main__' :
     cv2.destroyAllWindows()
 
     while(True):
-        
-        # Capture the video frame by frame
-        ret, frame = vid.read()
+    
+        adjustedImage = board_grabber.getFlattenedFrame()
 
-        # Do stuff
-        cropped_frame = frame[y:y+h, x:x+w]
-        adjustedImage = cv2.warpPerspective(cropped_frame, M, (templateImage.shape[1],templateImage.shape[0]))
-
-        # Display the resulting frame
         cv2.imshow('Adjusted Frame Live', adjustedImage)
 
         thresholdedImg = adjustedImage.copy()
