@@ -35,32 +35,49 @@ if __name__ == '__main__' :
         print("Cannot open camera")
         exit()
 
-    # Do setup stuff
-    ret, frame = vid.read()
+     # Do setup stuff
 
-    # Get just the part of the frame that has the board in it
-    dilatedImg = imo.dilation(20, ct.getOceanThreshold(frame))
-    x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
-    contourCropped = frame[y:y+h, x:x+w]
-
-    cv2.imshow("Cropped img", contourCropped)
-    cv2.imshow("Dilated img", dilatedImg)
-    cv2.waitKey(0)
-
-    # Find the homography transform
+    M = None
     templateImage = cv2.imread(f'{args.img_dir}/catanBoardTransparent2.png', 0)
-    matchedPoints, adjustedImage, M = hg.homographyTilt(contourCropped, templateImage)
 
-    cv2.imshow("Warped Source Image", adjustedImage)
-    cv2.imshow("Matched points", matchedPoints)
+    while M is None:
+        ret, frame = vid.read()
+
+        # Get just the part of the frame that has the board in it
+        dilatedImg = imo.dilation(20, ct.getOceanThreshold(frame))
+        x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
+        contourCropped = frame[y:y+h, x:x+w]
+
+        cv2.imshow("Cropped img", contourCropped)
+        cv2.imshow("Dilated img", dilatedImg)
+        # Find the homography transform
+        matchedPoints, originalAdjustedImage, M = hg.homographyTilt(contourCropped, templateImage)
+
+        if M is None:
+            continue
+        cv2.imshow("Warped Source Image", originalAdjustedImage)
+        cv2.imshow("Matched points", matchedPoints)
+
+        #print("Is this a good homography? [y/n]")
+        # userin = input("Is this a good homography? [y/n]")
+        # if userin == "y":
+        #     break
+        # elif userin == "n":
+        #     M = None
+        if cv2.waitKey(0) & 0xFF == ord('y'):
+            break
+        elif cv2.waitKey(0) & 0xFF == ord('n'):
+            M = None
+
+
+
 
     cv2.waitKey(0)
 
-    cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", adjustedImage)
+    cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", originalAdjustedImage)
 
     cv2.destroyAllWindows()
 
-    rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg = fmt.loadTemplateImgs(args.img_dir)
 
     while(True):
         
@@ -71,16 +88,13 @@ if __name__ == '__main__' :
         cropped_frame = frame[y:y+h, x:x+w]
         adjustedImage = cv2.warpPerspective(cropped_frame, M, (templateImage.shape[1],templateImage.shape[0]))
 
-        #adjustedImage = cv2.imread(f'{args.img_dir}/adjustedImg.png')
-
         # Display the resulting frame
         cv2.imshow('Adjusted Frame Live', adjustedImage)
 
         thresholdedImg = adjustedImage.copy()
 
-        # # print(tt.TileThresholder.list_iter.__next__())
         thresholder = tt.TileThresholder(thresholdedImg)
-        # # thresholder = TileThresholder(img, calibrate=True)
+
         for i, (x2, y2) in enumerate(thresholder):
             bb_size = 40
             currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
@@ -88,17 +102,15 @@ if __name__ == '__main__' :
             cv2.rectangle(
                 thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
             )
-            #fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
-            cv2.imshow("Current Tile", currentTileImg)
+
+            #cv2.imshow("Current Tile", currentTileImg)
             thresholds = ct.getThresholds(currentTileImg)
-            for (k,v) in thresholds.items():
-                print(f"Count for {k} is {cv2.countNonZero(v)}")
+            # for (k,v) in thresholds.items():
+            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
 
             # print out the key for the largest value size
             print(f"Tile {i} is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
             cv2.putText(thresholdedImg, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-        # print("Showing image")
 
         cv2.imshow("image with labelled tiles", thresholdedImg)
 
