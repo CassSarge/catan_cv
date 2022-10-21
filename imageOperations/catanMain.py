@@ -24,7 +24,7 @@ if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
     parser.add_argument('img_dir', help='Path to testing images', default="catanImages/")
-    parser.add_argument('video_index', help='Index of video to process', type=int, default=1)
+    parser.add_argument('video_index', help='Index of video to process', type=int, nargs='?', const=1)
 
     args = parser.parse_args()
 
@@ -59,12 +59,8 @@ if __name__ == '__main__' :
         cv2.imshow("Warped Source Image", originalAdjustedImage)
         cv2.imshow("Matched points", matchedPoints)
 
-        #print("Is this a good homography? [y/n]")
-        # userin = input("Is this a good homography? [y/n]")
-        # if userin == "y":
-        #     break
-        # elif userin == "n":
-        #     M = None
+        print("Is this a good homography? [y/n]")
+
         if cv2.waitKey(0) & 0xFF == ord('y'):
             break
         elif cv2.waitKey(0) & 0xFF == ord('n'):
