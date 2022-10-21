@@ -9,17 +9,6 @@ import featureMatchTiles as fmt
 import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
-def getBoxes(img):
-
-    forestThreshold = ct.getForestThreshold(adjustedImage)
-    img = imo.NLargestContoursDetect(4, adjustedImage, forestThreshold, "Forest")
-
-    cv2.imshow("threshold", forestThreshold)
-    #fieldThreshold = ct.getFieldThreshold(adjustedImage)
-    #fieldBoxes = imo.NLargestContoursDetect(4, forestBoxes, fieldThreshold, "Field")
-
-    return img
-
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
@@ -74,7 +63,6 @@ if __name__ == '__main__' :
     cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", originalAdjustedImage)
 
     cv2.destroyAllWindows()
-
 
     while(True):
         
