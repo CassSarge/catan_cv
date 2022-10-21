@@ -80,8 +80,8 @@ def getFieldThreshold(rgb_image, inlecture=False):
         upper_field = np.array([0.287*179,0.865*255,0.863*255])
     else:
         # PNR Threshold
-        lower_field = np.array([0.115*179,0.357*255,0.429*255])
-        upper_field = np.array([0.177*179,0.987*255,0.731*255])
+        lower_field = np.array([0.141*179,0.160*255,0.161*255])
+        upper_field = np.array([0.332*179,1.000*255,0.573*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_field, upper_field)
