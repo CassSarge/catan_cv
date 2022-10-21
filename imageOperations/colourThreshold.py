@@ -2,6 +2,29 @@ import numpy as np
 import cv2
 import argparse
 
+def getThresholds(rgb_image, inlecture = False):
+    img_wheat = getWheatThreshold(rgb_image, inlecture)
+    img_rock = getRockThreshold(rgb_image, inlecture)
+    img_field = getFieldThreshold(rgb_image, inlecture)
+    img_clay = getClayThreshold(rgb_image, inlecture)
+    img_forest = getForestThreshold(rgb_image, inlecture)
+    # img_desert = getDesertThreshold(rgb_image, inlecture)
+
+    results = {"wheat": img_wheat, "rock": img_rock, "field": img_field, "clay":
+            img_clay, "forest": img_forest}
+    
+    return results 
+
+def inRangeWrapper(img, lower, upper):
+    if lower[0] > upper[0]:
+        img1 = cv2.inRange(img, lower, np.array([179, upper[1], upper[2]]))
+        img2 = cv2.inRange(img, np.array([0, lower[1], lower[2]]), upper)
+        img = cv2.bitwise_or(img1, img2)
+    else:
+        img = cv2.inRange(img, lower, upper)
+
+    return img 
+
 def closeAndOpen(img_threshold, ksize):
 
     kernel1 = np.ones((ksize,ksize),np.uint8)
@@ -24,7 +47,7 @@ def getWheatThreshold(rgb_image, inlecture=False):
         upper_wheat = np.array([0.132*179,1.000*255,0.720*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_wheat, upper_wheat)
+    img_threshold = inRangeWrapper(frame_HSV, lower_wheat, upper_wheat)
 
     img_threshold = closeAndOpen(img_threshold, 8)
 
@@ -43,7 +66,7 @@ def getRockThreshold(rgb_image, inlecture=False):
 
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_rock, upper_rock)
+    img_threshold = inRangeWrapper(frame_HSV, lower_rock, upper_rock)
 
     #img_threshold = closeAndOpen(img_threshold, 8)
 
@@ -61,7 +84,7 @@ def getFieldThreshold(rgb_image, inlecture=False):
         upper_field = np.array([0.177*179,0.987*255,0.731*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_field, upper_field)
+    img_threshold = inRangeWrapper(frame_HSV, lower_field, upper_field)
 
     img_threshold = closeAndOpen(img_threshold, 8)
 
@@ -79,7 +102,7 @@ def getClayThreshold(rgb_image, inlecture=False):
         upper_clay = np.array([0.083*179,1.00*255,0.616*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_clay, upper_clay)
+    img_threshold = inRangeWrapper(frame_HSV, lower_clay, upper_clay)
 
     img_threshold = closeAndOpen(img_threshold, 8)
 
@@ -96,7 +119,7 @@ def getOceanThreshold(rgb_image, inlecture=False):
         upper_ocean = np.array([0.650*179,0.987*255,0.961*255]) 
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_ocean, upper_ocean)
+    img_threshold = inRangeWrapper(frame_HSV, lower_ocean, upper_ocean)
 
     img_threshold = closeAndOpen(img_threshold, 10)
 
@@ -114,7 +137,7 @@ def getForestThreshold(rgb_image, inlecture=False):
         upper_forest = np.array([0.146*179,0.957*255,0.604*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_forest, upper_forest)
+    img_threshold = inRangeWrapper(frame_HSV, lower_forest, upper_forest)
 
     img_threshold = closeAndOpen(img_threshold, 10)
 
@@ -141,7 +164,7 @@ if __name__ == '__main__' :
     window_name = "Adjusted Image"
 
     frame_HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img_threshold = cv2.inRange(frame_HSV, lower_forest, upper_forest)
+    img_threshold = inRangeWrapper(frame_HSV, lower_forest, upper_forest)
 
     cv2.imshow(window_name, img)
     cv2.imshow(window_name, img_threshold)
