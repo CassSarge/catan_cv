@@ -38,11 +38,12 @@ if __name__ == '__main__' :
     ret, frame = vid.read()
 
     # Get just the part of the frame that has the board in it
-    dilatedImg = imo.dilation(10, ct.getOceanThreshold(frame))
+    dilatedImg = imo.dilation(20, ct.getOceanThreshold(frame))
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     contourCropped = frame[y:y+h, x:x+w]
 
-    cv2.imshow("Cropped image", contourCropped)
+    cv2.imshow("Cropped img", contourCropped)
+    cv2.imshow("Dilated img", dilatedImg)
     cv2.waitKey(0)
 
     # Find the homography transform
@@ -86,7 +87,7 @@ if __name__ == '__main__' :
             cv2.rectangle(
                 thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
             )
-            fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
+            #fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
             #cv2.imshow("Current Tile", currentTileImg)
             #cv2.waitKey(0)
 
