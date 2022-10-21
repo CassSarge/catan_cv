@@ -55,7 +55,7 @@ if __name__ == '__main__' :
 
     cv2.waitKey(0)
 
-    #cv2.imwrite(f"{args.img_dir}/adjustedImg.png", adjustedImage)
+    cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", adjustedImage)
 
     cv2.destroyAllWindows()
 
@@ -82,14 +82,22 @@ if __name__ == '__main__' :
         # # thresholder = TileThresholder(img, calibrate=True)
         for (x2, y2) in thresholder:
             bb_size = 40
-            currentTileImg = adjustedImage[y2:y2+bb_size, x2:x2+bb_size]
+            currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
             cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
             cv2.rectangle(
                 thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
             )
             #fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
-            #cv2.imshow("Current Tile", currentTileImg)
-            #cv2.waitKey(0)
+            cv2.imshow("Current Tile", currentTileImg)
+            thresh = ct.getRockThreshold(currentTileImg)
+            cv2.imshow("rock thresh on current Tile", thresh)
+            count_white = cv2.countNonZero(thresh);
+            count_black = thresh.size - count_white;
+            print(f"White count: {count_white}")
+            print(f"Black count: {count_black}")
+            if count_white > count_black:
+                print("Image is rock")
+            cv2.waitKey(0)
 
 
         # print("Showing image")
