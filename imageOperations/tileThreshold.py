@@ -81,7 +81,7 @@ class TileThresholder:
         for i, rng in enumerate(row_lengths):
             for j in range(rng):
                 (x, y) = self.getTileCoords(i, j)
-                yield (x, y)
+                yield PixelCoords(x, y)
 
     listOfKeyPoints = [
         "Centre of top row leftmost tile",
@@ -156,7 +156,7 @@ if __name__ == "__main__":
     # for i in [0, 12, 14]: ROCK
     for i in [3, 5, 8, 15]:
         plt.plot(hue_hists[i])
-        plt.title(label[i])
+        plt.title(str(label[i]))
         plt.xlim([0,179])
         plt.show()
 
