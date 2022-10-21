@@ -13,9 +13,15 @@ def closeAndOpen(img_threshold, ksize):
     return img_threshold
 
 def getWheatThreshold(rgb_image, inlecture=False):
-    # PNR Threshold
-    lower_wheat = np.array([0.089*179,0.707*255,0.386*255])
-    upper_wheat = np.array([0.132*179,1.000*255,0.720*255])
+    
+    if inlecture:
+        # Lecture theatre threshold
+        lower_wheat = np.array([0.125*179,0.570*255,0.547*255])
+        upper_wheat = np.array([0.151*179,1.000*255,1.000*255])
+    else:
+        # PNR Threshold
+        lower_wheat = np.array([0.089*179,0.707*255,0.386*255])
+        upper_wheat = np.array([0.132*179,1.000*255,0.720*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_wheat, upper_wheat)
@@ -25,23 +31,15 @@ def getWheatThreshold(rgb_image, inlecture=False):
     return img_threshold
 
 def getRockThreshold(rgb_image, inlecture=False):
-    # PNR Threshold
-    lower_rock = np.array([0.929*179,0.000*255,0.000*255])
-    upper_rock = np.array([0.099*179,1.000*255,1.000*255])
 
-    # ????? fucked
-
-    # # % Define thresholds for channel 1 based on histogram settings
-    # channel1Min = 0.875;
-    # channel1Max = 0.098;
-
-    # % Define thresholds for channel 2 based on histogram settings
-    # channel2Min = 0.304;
-    # channel2Max = 0.584;
-
-    # % Define thresholds for channel 3 based on histogram settings
-    # channel3Min = 0.218;
-    # channel3Max = 0.526;
+    if inlecture:
+        # Lecture theatre Threshold
+        lower_rock = np.array([0.667*179,0.000*255,0.392*255])
+        upper_rock = np.array([0.149*179,0.415*255,0.941*255])
+    else:
+        # PNR Threshold
+        lower_rock = np.array([0.875*179,0.304*255,0.218*255])
+        upper_rock = np.array([0.098*179,0.584*255,0.526*255])
 
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
@@ -52,9 +50,15 @@ def getRockThreshold(rgb_image, inlecture=False):
     return img_threshold
 
 def getFieldThreshold(rgb_image, inlecture=False):
-    # PNR Threshold
-    lower_field = np.array([0.115*179,0.357*255,0.429*255])
-    upper_field = np.array([0.177*179,0.987*255,0.731*255])
+
+    if inlecture:
+        # Lecture theatre Threshold
+        lower_field = np.array([0.169*179,0.120*255,0.592*255])
+        upper_field = np.array([0.287*179,0.865*255,0.863*255])
+    else:
+        # PNR Threshold
+        lower_field = np.array([0.115*179,0.357*255,0.429*255])
+        upper_field = np.array([0.177*179,0.987*255,0.731*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_field, upper_field)
@@ -64,21 +68,15 @@ def getFieldThreshold(rgb_image, inlecture=False):
     return img_threshold
 
 def getClayThreshold(rgb_image, inlecture=False):
-    # PNR Threshold
-    lower_clay = np.array([0.045*179,0.580*255,0.121*255])
-    upper_clay = np.array([0.083*179,1.00*255,0.616*255])
-
-    # % Define thresholds for channel 1 based on histogram settings
-    # channel1Min = 0.045;
-    # channel1Max = 0.083;
-
-    # % Define thresholds for channel 2 based on histogram settings
-    # channel2Min = 0.580;
-    # channel2Max = 1.000;
-
-    # % Define thresholds for channel 3 based on histogram settings
-    # channel3Min = 0.121;
-    # channel3Max = 0.616;
+    
+    if inlecture:
+        # Lecture theatre
+        lower_clay = np.array([0.085*179,0.409*255,0.268*255])
+        upper_clay = np.array([0.128*179,1.00*255,1.000*255])
+    else:
+        # PNR Threshold
+        lower_clay = np.array([0.045*179,0.580*255,0.121*255])
+        upper_clay = np.array([0.083*179,1.00*255,0.616*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_clay, upper_clay)
@@ -90,14 +88,12 @@ def getClayThreshold(rgb_image, inlecture=False):
 
 def getOceanThreshold(rgb_image, inlecture=False):
 
-    # lower_ocean = np.array([0.563*179,0.093*255,0.569*255])
-    # upper_ocean = np.array([0.619*179,0.772*255,0.902*255])
-
-    # lower_ocean = np.array([0.572*179,0.000*255,0.512*255])
-    # upper_ocean = np.array([0.732*179,0.840*255,0.755*255])
-
-    lower_ocean = np.array([0.540*179,0.000*255,0.325*255])
-    upper_ocean = np.array([0.650*179,0.987*255,0.961*255]) 
+    if inlecture:
+        lower_ocean = np.array([0.548*179,0.103*255,0.599*255])
+        upper_ocean = np.array([0.637*179,0.987*255,0.992*255]) 
+    else:
+        lower_ocean = np.array([0.540*179,0.000*255,0.325*255])
+        upper_ocean = np.array([0.650*179,0.987*255,0.961*255]) 
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = cv2.inRange(frame_HSV, lower_ocean, upper_ocean)
