@@ -6,6 +6,7 @@ import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
 import featureMatchTiles as fmt
+import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
 def getBoxes(img):
@@ -80,7 +81,7 @@ if __name__ == '__main__' :
         # # print(tt.TileThresholder.list_iter.__next__())
         thresholder = tt.TileThresholder(thresholdedImg)
         # # thresholder = TileThresholder(img, calibrate=True)
-        for (x2, y2) in thresholder:
+        for i, (x2, y2) in enumerate(thresholder):
             bb_size = 40
             currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
             cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
@@ -89,16 +90,13 @@ if __name__ == '__main__' :
             )
             #fmt.checkAllTiles(rockImg, fieldImg, forestImg, wheatImg, clayImg, desertImg, currentTileImg)
             cv2.imshow("Current Tile", currentTileImg)
-            thresh = ct.getRockThreshold(currentTileImg)
-            cv2.imshow("rock thresh on current Tile", thresh)
-            count_white = cv2.countNonZero(thresh);
-            count_black = thresh.size - count_white;
-            print(f"White count: {count_white}")
-            print(f"Black count: {count_black}")
-            if count_white > count_black:
-                print("Image is rock")
-            cv2.waitKey(0)
+            thresholds = ct.getThresholds(currentTileImg)
+            for (k,v) in thresholds.items():
+                print(f"Count for {k} is {cv2.countNonZero(v)}")
 
+            # print out the key for the largest value size
+            print(f"Tile {i} is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
+            cv2.putText(thresholdedImg, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
         # print("Showing image")
 
@@ -108,6 +106,8 @@ if __name__ == '__main__' :
         # desired button of your choice
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+        time.sleep(0.5)
 
     # After the loop release the cap object
     vid.release()
