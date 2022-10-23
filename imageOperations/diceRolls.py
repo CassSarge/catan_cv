@@ -71,7 +71,7 @@ def countPips(mask, dieCropped):
             #print("Skipped component")
             pass
 
-    print("[INFO] Dice roll result is {}".format(numPips))
+   # print("[INFO] Dice roll result is {}".format(numPips))
     # cv2.imshow("Output", output)
     # cv2.imshow("Mask", mask)
     # cv2.waitKey(0)
@@ -110,6 +110,18 @@ if __name__ == '__main__' :
         mask = getDieMask(dieCropped, 'r')
 
         numPips = countPips(mask, dieCropped)
+
+        print("[Red] Dice roll result is {}".format(numPips))
+
+        dieCropped = cropToDie(frame, 'y')
+        cv2.imshow("Yellow die", dieCropped)
+        
+        mask = getDieMask(dieCropped, 'y')
+
+        numPips = countPips(mask, dieCropped)
+
+        print("[Yellow] Dice roll result is {}".format(numPips))
+
 
     # After the loop release the cap object
     vid.release()
