@@ -1,9 +1,7 @@
-from ast import Num
 import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
-import numpy as np
 
 def cropToDie(img, colour):
     if colour == 'r':
