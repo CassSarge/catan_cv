@@ -1,3 +1,4 @@
+from ast import Num
 import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
@@ -6,7 +7,7 @@ import numpy as np
 
 if __name__ == '__main__' :
 
-    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser = argparse.ArgumentParser(description='Dice rolling with connected components')
     parser.add_argument('img_dir', help='Path to testing images')
 
     args = parser.parse_args()
@@ -38,22 +39,57 @@ if __name__ == '__main__' :
         cv2.imshow("Dice red cropped", redDiceCropped)
 
         rDiceThresh = ct.getRedDiceThreshold(redDiceCropped)
-        cv2.imshow("Dice red cropped+threshed", rDiceThresh)
 
         mask = cv2.bitwise_not(rDiceThresh) # invert
-        circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, 1, 10, param1=30, param2=15, minRadius=6, maxRadius=30)
 
+        imgArea = w*h
+        
+        # apply connected component analysis to the thresholded image
+        output = cv2.connectedComponentsWithStats(mask, 8, cv2.CV_32S)
+        (numLabels, labels, stats, centroids) = output
 
-        if circles is not None:
-            circles = np.round(circles[0, :]).astype("int")
-            if ((len(circles) > 0) and (len(circles) <=6)): # no point guessing
-                cv2.putText(mask,"RED: " + str(len(circles)), (5,5), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,0,0),2)
-                #print(len(circles))
-        else:
-            print("brrr")
+        numPips = 0
+        output = redDiceCropped.copy()
+        # loop over the number of unique connected component labels
+        for i in range(0, numLabels):
+            # if this is the first component then we examine the
+            # *background* (typically we would just ignore this
+            # component in our loop)
+            # if i == 0:
+                # text = "examining component {}/{} (background)".format(
+                    # i + 1, numLabels)
+            # otherwise, we are examining an actual connected component
+            # else:
+                # text = "examining component {}/{}".format( i + 1, numLabels)
+            # print a status message update for the current connected
+            # component
+            # print("[INFO] {}".format(text))
+            # extract the connected component statistics and centroid for
+            # the current label
+            x = stats[i, cv2.CC_STAT_LEFT]
+            y = stats[i, cv2.CC_STAT_TOP]
+            w = stats[i, cv2.CC_STAT_WIDTH]
+            h = stats[i, cv2.CC_STAT_HEIGHT]
+            area = stats[i, cv2.CC_STAT_AREA]
+            (cX, cY) = centroids[i]
+            
+            if area > 200 and area < 6000:
+                # print("[INFO] area is {}".format(area))
+                cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 3)
+                cv2.circle(output, (int(cX), int(cY)), 4, (0, 0, 255), -1)
+                componentMask = (labels == i).astype("uint8") * 255
+                # show our output image and connected component mask
+                #cv2.imshow("Connected Component", componentMask)
+                numPips = numPips + 1
+            else:
+                #print("Skipped component")
+                pass
+        
+        print("[INFO] Dice roll result is {}".format(numPips))
 
-        if cv2.waitKey(1) == ord('q'):
-            break
+        cv2.imshow("Output", output)
+        cv2.imshow("Mask", mask)
+        cv2.waitKey(0)
 
     # After the loop release the cap object
     vid.release()
