@@ -9,6 +9,14 @@ def dilation(dilationSize, img):
     dilated_img = cv2.dilate(img, element)
     return dilated_img
 
+def erode(erosionSize, img):
+    erosion_size = erosionSize
+    erosion_shape = cv2.MORPH_RECT
+    element = cv2.getStructuringElement(erosion_shape, (2 * erosion_size + 1, 2 * erosion_size + 1),
+                                       (erosion_size, erosion_size))
+    eroded_img = cv2.erode(img, element)
+    return eroded_img
+
 def largestContourDetect(img, thresh):
     # Find Canny edges
     edged = cv2.Canny(thresh, 30, 200)
