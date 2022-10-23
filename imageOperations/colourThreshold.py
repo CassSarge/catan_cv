@@ -2,6 +2,41 @@ import numpy as np
 import cv2
 import argparse
 
+def getRedDiceThreshold(rgb_image, inlecture=False):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_rdice = np.array([0.974*179,0.500*255,0.000*255])
+        upper_rdice = np.array([0.064*179,0.965*255,1.000*255])
+    else:
+        # PNR Threshold
+        lower_rdice = np.array([0.950*179,0.500*255,0.000*255])
+        upper_rdice = np.array([0.080*179,1.000*255,1.000*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_rdice, upper_rdice)
+
+    img_threshold = closeAndOpen(img_threshold, 2)
+
+    return img_threshold
+
+def getYellowDiceThreshold(rgb_image, inlecture=False):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_ydice = np.array([0.974*179,0.137*255,0.196*255])
+        upper_ydice = np.array([0.054*179,0.965*255,0.984*255])
+    else:
+        # PNR Threshold
+        lower_ydice = np.array([0.080*179,0.341*255,0.282*255])
+        upper_ydice = np.array([0.165*179,0.944*255,1.000*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_ydice, upper_ydice)
+
+    img_threshold = closeAndOpen(img_threshold, 4)
+
+    return img_threshold
+
+
 def getThresholds(rgb_image, inlecture = False):
     img_wheat = getWheatThreshold(rgb_image, inlecture)
     img_rock = getRockThreshold(rgb_image, inlecture)
