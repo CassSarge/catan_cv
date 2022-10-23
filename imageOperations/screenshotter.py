@@ -1,4 +1,3 @@
-# import the opencv library
 import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
@@ -40,7 +39,7 @@ if __name__ == '__main__' :
             break
         if cv2.waitKey(1) == ord('s'):
             now = datetime.now()
-            current_time = now.strftime("%H:%M:%S")
+            current_time = now.strftime("%H_%M_%S")
             img_name = f"{args.img_dir}/screenshot" + current_time + ".png"
             cv2.imwrite(img_name, frame)
             print('Screenshot ', img_name, ' saved')
