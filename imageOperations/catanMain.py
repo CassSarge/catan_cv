@@ -6,6 +6,7 @@ import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
 import featureMatchTiles as fmt
+import identifyNumbers as idNums
 import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
 
@@ -100,8 +101,11 @@ if __name__ == '__main__' :
                 thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
             )
 
+
+
             #cv2.imshow("Current Tile", currentTileImg)
             thresholds = ct.getThresholds(currentTileImg)
+            circles = idNums.getCircularFeatures(currentTileImg)
             # for (k,v) in thresholds.items():
             #     print(f"Count for {k} is {cv2.countNonZero(v)}")
 
