@@ -93,6 +93,7 @@ class BoardGrabber:
                 self.M = M
                 self.tilesImage = flattened
                 self.cropCoords = (x, y, w, h)
+                self.thresholder = tt.TileThresholder(self.tilesImage)
                 return
             elif cv2.waitKey(0) & 0xFF == ord('n'):
                 self.M = None
