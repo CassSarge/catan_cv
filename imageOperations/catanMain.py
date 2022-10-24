@@ -51,7 +51,7 @@ class BoardGrabber:
         return frame[y:y+h, x:x+w]
 
     def getFrame(self):
-        return cv2.imread("catanImages/screenshot10:16:54.png")
+        # return cv2.imread("catanImages/screenshot10:16:54.png")
         (ret, frame) = self.vid.read()
         if ret:
             return frame
