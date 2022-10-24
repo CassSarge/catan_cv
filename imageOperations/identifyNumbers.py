@@ -5,7 +5,9 @@ import time
 import numpy as np
 
 
-def getCircularFeatures(im):
+def getCircularFeatures(im_base):
+
+    im = im_base.copy()
 
     #expectation of 18 number tiles placed in board
     # im = cv2.equalizeHist(im)
@@ -17,7 +19,7 @@ def getCircularFeatures(im):
 
     # circular_features = np.around(circular_features).astype("uint16")
 
-    print(circular_features[:,:,:])
+    # print(circular_features[:,:,:])
 
     for i in circular_features[0,:]:
         
@@ -36,7 +38,7 @@ def getCircularFeatures(im):
     cv2.waitKey(0)
 
 
-    return 0
+    return circular_features
 
 
 
