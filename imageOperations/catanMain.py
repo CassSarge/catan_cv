@@ -98,6 +98,78 @@ class BoardGrabber:
             elif cv2.waitKey(0) & 0xFF == ord('n'):
                 self.M = None
 
+    def getBoardState(self, ):
+        curr = self.getFlattenedFrame()
+        cv2.imshow('Adjusted Frame Live', curr)
+
+        # use this to show information overlays
+        curr_overlay = curr.copy()
+
+        tiles = []
+
+        for i, (x2, y2) in enumerate(self.thresholder):
+
+            bb_size = 40
+            tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
+            thresholds = ct.getThresholds(tile)
+
+            cv2.circle(curr_overlay, (x2, y2), 5, (0, 0, 255), -1)
+            cv2.rectangle(
+                curr_overlay, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
+            )
+            cv2.putText(curr_overlay, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+
+            most_likely_type = max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))
+            most_likely_number = 0
+
+            #cv2.imshow("Current Tile", currentTileImg)
+            # for (k,v) in thresholds.items():
+            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
+
+            # print out the key for the largest value size
+            # print(f"Tile {i} is {most_likely_type}")
+
+            tiles.append(Tile(most_likely_type, most_likely_number, False))
+
+
+        cv2.imshow("image with labelled tiles", curr_overlay)
+
+        return tiles
+    
+    def findThiefTile(self, verbose = False, expected_blobs = 1):
+        curr = self.getFlattenedFrame()
+        curr = cv2.cvtColor(curr, cv2.COLOR_BGR2GRAY)
+
+        base = self.tilesImage.copy()
+        base = cv2.cvtColor(base, cv2.COLOR_BGR2GRAY)
+
+        (percentage_changed, diff) = compare_ssim(base, curr, full=True)
+        diff = (diff * 255).astype("uint8")
+
+        thresholded_diff = cv2.threshold(diff, 200, 255, cv2.THRESH_BINARY_INV)[1]
+
+        # Show the differences between the images
+        if verbose:
+            print(f"Amount of pixels changed: {percentage_changed:.2f}%")
+            cv2.imshow("Changed Regions", thresholded_diff)
+        
+        # dilate the image ad then find contours to find the thief
+        dilated = imo.dilation(20, thresholded_diff)
+
+        # find the largest contour 
+        res = imo.NLargestContoursDetect(expected_blobs, curr, dilated, "Thief")
+
+        # show the image with the contours in res plotted on top
+        for c in res:
+            x,y,w,h= cv2.boundingRect(c)
+            cv2.rectangle(base, (x, y), (x + w, y + h), (255,0,0), 4)  
+    
+        cv2.imshow("Thief", base)
+
+        centroids = [(x + w//2, y + h//2) for (x,y,w,h) in res]
+        return centroids
+
+
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
@@ -118,6 +190,7 @@ if __name__ == '__main__' :
 
     board_grabber = BoardGrabber(vid, templateImage)
     board_grabber.getHomographyTF()
+    # print(board_grabber.tilesImage)
 
     cv2.waitKey(0)
 
@@ -126,40 +199,12 @@ if __name__ == '__main__' :
     cv2.destroyAllWindows()
 
     while(True):
-    
-        adjustedImage = board_grabber.getFlattenedFrame()
-
-        cv2.imshow('Adjusted Frame Live', adjustedImage)
-
-        thresholdedImg = adjustedImage.copy()
-
-        thresholder = tt.TileThresholder(thresholdedImg)
-
-        for i, (x2, y2) in enumerate(thresholder):
-            bb_size = 40
-            currentTileImg = adjustedImage[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
-            cv2.circle(thresholdedImg, (x2, y2), 5, (0, 0, 255), -1)
-            cv2.rectangle(
-                thresholdedImg, (x2 - bb_size, y2 - bb_size), (x2 + bb_size, y2 + bb_size), (0, 255, 0), 2
-            )
-
-            #cv2.imshow("Current Tile", currentTileImg)
-            thresholds = ct.getThresholds(currentTileImg)
-            # for (k,v) in thresholds.items():
-            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
-
-            # print out the key for the largest value size
-            print(f"Tile {i} is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
-            cv2.putText(thresholdedImg, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-
-        cv2.imshow("image with labelled tiles", thresholdedImg)
-
-        # the 'q' button is set as the quitting button you may use any
-        # desired button of your choice
+        tiles = board_grabber.getBoardState()
+        board_grabber.findThiefTile(True)
+        print(tiles)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-
-    #     time.sleep(0.5)
+    
 
     # # After the loop release the cap object
     vid.release()
