@@ -6,8 +6,30 @@ import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
 import featureMatchTiles as fmt
+from skimage.metrics import structural_similarity as compare_ssim
 import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
+
+class Tile:
+    def __init__(self, type, number, has_thief = False):
+        self.type = type
+        self.number = number
+        self.has_thief = has_thief
+
+    def __str__(self):
+        return f"Tile: {self.type}, {self.number}, {self.has_thief}"
+
+    def __repr__(self):
+        return str(self)
+
+    def __eq__(self, other):
+        return self.type == other.type and self.number == other.number and self.has_thief == other.has_thief
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash((self.type, self.number, self.has_thief))
 
 class BoardGrabber:
     def __init__(self, video_source, board_template):
