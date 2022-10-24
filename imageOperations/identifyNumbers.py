@@ -8,22 +8,16 @@ import numpy as np
 def getCircularFeatures(im):
 
     #expectation of 18 number tiles placed in board
-    im = cv2.equalizeHist(im)
+    # im = cv2.equalizeHist(im)
     im_blur = cv2.GaussianBlur(im, (3,3), cv2.BORDER_DEFAULT)
 
     #detect only one circle
-    circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 2, 80, 400, 0.99, 50, 70)
+    circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 1, 90, param1=50, param2=30, minRadius=40, maxRadius=80)
+    circular_features = circular_features.astype(int)
 
-    circular_features = np.uint16(np.around(circular_features))
+    # circular_features = np.around(circular_features).astype("uint16")
 
     print(circular_features[:,:,:])
-
-    # circ = circular_features[0,1]
-
-    # # draw the outer circle
-    # cv2.circle(im,(circ[0],circ[1]),circ[2],(0,255,0),2)
-    # # draw the center of the circle
-    # cv2.circle(im,(circ[0],circ[1]),2,(0,0,255),3)
 
     for i in circular_features[0,:]:
         
@@ -38,7 +32,6 @@ def getCircularFeatures(im):
         #im_num = im[int(i[1]-dim/2):int(i[1]+dim/2), int(i[0]-dim/2):int(i[0]+dim/2)]
     
     cv2.imshow('detected circles',im)
-    #cv2.imshow('num', im_num)
     cv2.imshow('blue', im_blur)
     cv2.waitKey(0)
 
