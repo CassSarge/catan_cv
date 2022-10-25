@@ -29,16 +29,16 @@ def getCircularFeatures(im_base):
         cv2.circle(im,(i[0],i[1]),2,(0,0,255),3)
 
         #take square section of number containing tile
-        #dim = 2*i[2]*np.sin(45)
-        #dim = 2*i[2]
-        #im_num = im[int(i[1]-dim/2):int(i[1]+dim/2), int(i[0]-dim/2):int(i[0]+dim/2)]
+        dim = i[2]*np.sin(np.deg2rad(45))
+        cropped_im = im[int(i[1]-dim):int(im[1]+dim), int(i[0]-dim):int(i[0]+dim)]
+
+
     
     cv2.imshow('detected circles',im)
-    cv2.imshow('blue', im_blur)
+    cv2.imshow('blur', im_blur)
     cv2.waitKey(0)
 
-
-    return circular_features
+    return cropped_im
 
 
 
