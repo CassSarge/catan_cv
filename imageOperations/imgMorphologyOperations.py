@@ -60,5 +60,5 @@ def NLargestContoursDetect(N, img, thresh, name):
             cv2.putText(img, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0,0), 2)
         else:
             break
-
-    return img
+    
+    return sorted_contours[:N+1]

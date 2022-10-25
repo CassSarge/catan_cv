@@ -13,7 +13,7 @@ if __name__ == '__main__' :
     args = parser.parse_args()
 
     # Define a video capture object
-    vid = cv2.VideoCapture(1)
+    vid = cv2.VideoCapture(2)
 
     # Ensure camera is working
     if not vid.isOpened():
