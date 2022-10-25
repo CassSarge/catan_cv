@@ -37,9 +37,13 @@ class BoardGrabber:
         self.board_template = board_template
         self.cropCoords = None
         self.tileImage = None
-        self.thiefImage = None
         self.numbersImage = None
+        self.thresholder = None
 
+        self.thiefImage = None
+        self.thiefTile = None
+
+        self.hasbeenread = False
         # will need current and previous board state here
 
         if not self.vid.isOpened():
@@ -121,6 +125,7 @@ class BoardGrabber:
 
             most_likely_type = max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))
             most_likely_number = 0
+            has_thief = i == self.thiefTile
 
             #cv2.imshow("Current Tile", currentTileImg)
             # for (k,v) in thresholds.items():
@@ -129,7 +134,7 @@ class BoardGrabber:
             # print out the key for the largest value size
             # print(f"Tile {i} is {most_likely_type}")
 
-            tiles.append(Tile(most_likely_type, most_likely_number, False))
+            tiles.append(Tile(most_likely_type, most_likely_number, has_thief))
 
 
         cv2.imshow("image with labelled tiles", curr_overlay)
@@ -160,13 +165,27 @@ class BoardGrabber:
         res = imo.NLargestContoursDetect(expected_blobs, curr, dilated, "Thief")
 
         # show the image with the contours in res plotted on top
+        centroids = []
         for c in res:
             x,y,w,h= cv2.boundingRect(c)
             cv2.rectangle(base, (x, y), (x + w, y + h), (255,0,0), 4)  
+
+            centroids.append((x + w//2, y + h//2))
     
         cv2.imshow("Thief", base)
 
-        centroids = [(x + w//2, y + h//2) for (x,y,w,h) in res]
+        for (x,y) in centroids:
+            closest_tile_index = min(enumerate(self.thresholder), key=lambda t: tt.PixelCoords.distPixels(t[1], tt.PixelCoords(x,y)))[0]
+            if closest_tile_index != self.thiefTile:
+
+                self.thiefTile = closest_tile_index
+                print(self.thiefTile)
+                time.sleep(1)
+                break
+            else:
+                print("I think the Thief hasnt moved")
+
+
         return centroids
 
 
@@ -199,11 +218,17 @@ if __name__ == '__main__' :
     cv2.destroyAllWindows()
 
     while(True):
+        board_grabber.findThiefTile()
         tiles = board_grabber.getBoardState()
-        board_grabber.findThiefTile(True)
-        print(tiles)
+        print(len(tiles))
+        print(tiles[0:3])
+        print(tiles[3:7])
+        print(tiles[7:12])
+        print(tiles[12:16])
+        print(tiles[16:19])
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        time.sleep(0.2)
     
 
     # # After the loop release the cap object
