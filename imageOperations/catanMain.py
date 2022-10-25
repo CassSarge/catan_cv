@@ -192,8 +192,8 @@ class BoardGrabber:
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
-    parser.add_argument('img_dir', help='Path to testing images', default="catanImages/")
-    parser.add_argument('video_index', help='Index of video to process', type=int, nargs='?', const=1)
+    parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
+    parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
 
     args = parser.parse_args()
 
