@@ -8,7 +8,7 @@ import argparse
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
-    parser.add_argument('img_dir', help='Path to testing images')
+    parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
 
     args = parser.parse_args()
 

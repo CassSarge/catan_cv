@@ -80,7 +80,7 @@ def countPips(mask, dieCropped):
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Dice rolling with connected components')
-    parser.add_argument('img_dir', help='Path to testing images')
+    parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
 
     args = parser.parse_args()
 
