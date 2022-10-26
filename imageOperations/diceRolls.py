@@ -5,14 +5,14 @@ import argparse
 
 def cropToDie(img, colour):
     if colour == 'r':
-        img_threshold = ct.getRedDiceThreshold(img)
+        img_threshold = ct.getRedDiceThreshold(img, inlecture=False)
     elif colour == 'y':
-        img_threshold = ct.getYellowDiceThreshold(img)
-    #cv2.imshow("Dice red thresh", img_threshold)
+        img_threshold = ct.getYellowDiceThreshold(img, inlecture=False)
+    # cv2.imshow("Dice thresh", img_threshold)
     dilatedImg = imo.dilation(20, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     dieCropped = frame[y:y+h, x:x+w] # This image should be ballpark 200 pixels
-    #cv2.imshow("Dilated img", dilatedImg)
+    cv2.imshow("Dilated img", dilatedImg)
     #cv2.imshow("Dice red cropped", redDieCropped)
     return dieCropped
 
@@ -104,7 +104,8 @@ if __name__ == '__main__' :
         cv2.waitKey(1000)
 
         dieCropped = cropToDie(frame, 'r')
-        
+        # cv2.imshow("Red die", dieCropped)
+
         mask = getDieMask(dieCropped, 'r')
 
         numPips = countPips(mask, dieCropped)
@@ -112,7 +113,7 @@ if __name__ == '__main__' :
         print("[Red] Dice roll result is {}".format(numPips))
 
         dieCropped = cropToDie(frame, 'y')
-        cv2.imshow("Yellow die", dieCropped)
+        # cv2.imshow("Yellow die", dieCropped)
         
         mask = getDieMask(dieCropped, 'y')
 
