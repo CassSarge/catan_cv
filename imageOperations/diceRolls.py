@@ -110,29 +110,17 @@ if __name__ == '__main__' :
         cv2.waitKey(10)
 
         dieCropped = cropToDie(frame, 'r')
-        # cv2.imshow("Red die", dieCropped)
-
         mask = getDieMask(dieCropped, 'r')
-
         redNumPips = countPips(mask, dieCropped)
-
-        dieCropped = cropToDie(frame, 'y')
-        #cv2.imshow("Yellow die", dieCropped)
-        
-        mask = getDieMask(dieCropped, 'y')
-        #cv2.imshow("Yellow mask", mask)
-
-
-        yellowNumPips = countPips(mask, dieCropped)
-
-        # print("[Red] is {}, [Yellow] is {}".format(redNumPips, yellowNumPips))
         rNumList.insert(0, redNumPips)
-        yNumList.insert(0, yellowNumPips)
-
         rNumList.pop()
-        yNumList.pop()
-
         redNumPipsMode = max(set(rNumList), key=rNumList.count)
+
+        dieCropped = cropToDie(frame, 'y')        
+        mask = getDieMask(dieCropped, 'y')
+        yellowNumPips = countPips(mask, dieCropped)
+        yNumList.insert(0, yellowNumPips)
+        yNumList.pop()
         yellowNumPipsMode = max(set(yNumList), key=yNumList.count)
 
         print("[Red] is {}, [Yellow] is {}".format(redNumPipsMode, yellowNumPipsMode))
