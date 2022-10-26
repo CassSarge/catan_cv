@@ -5,8 +5,8 @@ import argparse
 def getRedDiceThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_rdice = np.array([0.974*179,0.500*255,0.000*255])
-        upper_rdice = np.array([0.064*179,0.965*255,1.000*255])
+        lower_rdice = np.array([0.930*179,0.480*255,0.224*255])
+        upper_rdice = np.array([0.063*179,1.000*255,0.541*255])
     else:
         # PNR Threshold
         lower_rdice = np.array([0.950*179,0.500*255,0.000*255])
@@ -22,8 +22,8 @@ def getRedDiceThreshold(rgb_image, inlecture=False):
 def getYellowDiceThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_ydice = np.array([0.974*179,0.137*255,0.196*255])
-        upper_ydice = np.array([0.054*179,0.965*255,0.984*255])
+        lower_ydice = np.array([0.083*179,0.434*255,0.632*255])
+        upper_ydice = np.array([0.195*179,1.000*255,0.816*255])
     else:
         # PNR Threshold
         lower_ydice = np.array([0.080*179,0.341*255,0.282*255])
