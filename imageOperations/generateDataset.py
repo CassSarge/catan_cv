@@ -6,28 +6,23 @@ import tileThreshold as tt
 import featureMatchTiles as fmt
 import identifyNumbers as idNums
 import dummyVideo as dummyVid
+import os
 
-if __name__ == '__main__' :
+def main(homographyImage, img_dir, filename, dataset_dir):
+    """
+    homoImage: path to the image of the board flattened - to be used for the homography as the base image
+    img_dir: directory from which the given image can be found
+    filename: base path to the image to be segmented
+    dataset_dir: directory to which the segmented images will be saved
+    """
 
-    parser = argparse.ArgumentParser(description="""File to grab number tiles
-            from a board image and prepare them for classification""")
-    parser.add_argument("-i", "--img_dir", help="Path to the image directory", default="../catanImages/")
-    parser.add_argument("-f", '--filename', help="""Path to image to generate
-    dataset from""")
-    parser.add_argument("-d", '--dataset_dir', help="""Path to dataset to generate from""")   
-    
-    args = parser.parse_args()
-
-    # Define a video capture object
-    vid = dummyVid.dummyVideo(f"{args.dataset_dir}/{args.filename}")
-
-
+    vid = dummyVid.dummyVideo(f"{img_dir}{filename}")
     # Ensure camera is working
     if not vid.isOpened():
         print("Cannot open camera")
         exit()
 
-    templateImage = f'{args.img_dir}/catanBoardTransparent2.png'
+    templateImage = homographyImage
 
     board_grabber = BoardGrabber(vid, templateImage)
     board_grabber.getHomographyTF()
@@ -57,8 +52,9 @@ if __name__ == '__main__' :
         # print(tile)
         cv2.waitKey(1000)
         result = input("What tile num is this?: ")
-        print(f"{args.dataset_dir}{int(result)}/{i}_{args.filename}")
-        # cv2.imwrite(args.dataset_dir)
+        fname = f"{dataset_dir}{int(result)}/{i}_{filename}" 
+        print(fname)
+        cv2.imwrite(fname, tile)
         # print(result)
 
 
@@ -66,3 +62,21 @@ if __name__ == '__main__' :
     vid.release()
     # Destroy all the windows
     cv2.destroyAllWindows()
+
+if __name__ == '__main__' :
+
+    parser = argparse.ArgumentParser(description="""File to grab number tiles
+            from a board image and prepare them for classification""")
+    parser.add_argument("--base_homography_image", help="Path to base image for homography", default="catanImages/catanBoardTransparent2.png")
+    parser.add_argument("-i", "--img_dir", help="Path to the image directory", default="../catanImages/")
+    parser.add_argument("-d", '--dataset_dir', help="""Path to dataset to generate into""")   
+    
+    args = parser.parse_args()
+
+    # list all the files in the directory
+    print(args.img_dir)
+    files = os.listdir(args.img_dir)
+
+    for i in files:
+        main(args.base_homography_image, args.img_dir, i, args.dataset_dir)
+
