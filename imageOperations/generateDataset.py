@@ -14,11 +14,12 @@ if __name__ == '__main__' :
     parser.add_argument("-i", "--img_dir", help="Path to the image directory", default="../catanImages/")
     parser.add_argument("-f", '--filename', help="""Path to image to generate
     dataset from""")
+    parser.add_argument("-d", '--dataset_dir', help="""Path to dataset to generate from""")   
     
     args = parser.parse_args()
 
     # Define a video capture object
-    vid = dummyVid.dummyVideo(args.filename)
+    vid = dummyVid.dummyVideo(f"{args.dataset_dir}/{args.filename}")
 
 
     # Ensure camera is working
@@ -32,7 +33,6 @@ if __name__ == '__main__' :
     board_grabber.getHomographyTF()
     # print(board_grabber.tilesImage)
 
-    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
     board_grabber.findThiefTile()
@@ -47,15 +47,19 @@ if __name__ == '__main__' :
     number_subimages = []
     for i, (x,y) in enumerate(centers):
         tile_subimages.append(image[y-bb_size:y+bb_size, x-bb_size:x+bb_size])
-        number_cropped = idNums.getCircularFeatures(cv2.cvtColor(tile_subimages[i], cv2.COLOR_BGR2GRAY))
-
-
 
     # for each tile image, call idNums.getCircularFeatures
     number_tiles = [idNums.getCircularFeatures(cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)) for tile in tile_subimages]
-
-    #convert image to grayscale
-    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    for i, tile in enumerate(number_tiles):
+        # if tile is not None:
+        cv2.imshow("Current tile", tile)
+        # print(tile)
+        cv2.waitKey(1000)
+        result = input("What tile num is this?: ")
+        print(f"{args.dataset_dir}{int(result)}/{i}_{args.filename}")
+        # cv2.imwrite(args.dataset_dir)
+        # print(result)
 
 
     # # After the loop release the cap object

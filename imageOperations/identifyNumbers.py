@@ -41,13 +41,23 @@ def getCircularFeatures(im_base):
         #         if (x-i[0])**2 + (y-i[1])**2 > i[2]**2:
         #             im[x,y] = 0
 
+        shrink_radii = 1
+        im_mask = np.zeros(im.shape, dtype=np.uint8)
+        cv2.circle(im_mask, (i[0],i[1]), i[2]-shrink_radii, (255,255,255),-1)
+        masked_image = cv2.bitwise_and(im_mask,im)
+
         # crop the image to the circle
-        cropped_im = im[i[1]-i[2]:i[1]+i[2], i[0]-i[2]:i[0]+i[2]]
+        cropped_im = masked_image[i[1]-i[2]:i[1]+i[2], i[0]-i[2]:i[0]+i[2]]
 
     
-    # print(cropped_im)
-    cv2.imshow('detected circles',cropped_im)
-    cv2.waitKey(0)
+    
+
+    
+
+    # cv2.imshow('detected circles',cropped_im)
+    # cv2.waitKey(0)
+
+
 
     return cropped_im
 
