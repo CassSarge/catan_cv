@@ -11,31 +11,44 @@ def getCircularFeatures(im_base):
 
     #expectation of 18 number tiles placed in board
     # im = cv2.equalizeHist(im)
-    im_blur = cv2.GaussianBlur(im, (3,3), cv2.BORDER_DEFAULT)
+    im_blur = im.copy()
+    # im_blur = cv2.GaussianBlur(im, (3,3), cv2.BORDER_DEFAULT)
+
+    print(im_blur.shape)
 
     #detect only one circle
-    circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 1, 90, param1=50, param2=30, minRadius=40, maxRadius=80)
-    circular_features = circular_features.astype(int)
+    circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 1, 10, param1=60, param2=30, minRadius=15, maxRadius=25)
+    if (circular_features is None):
+        print("No circles found")
+        return None
+    print("here")
+    print(circular_features)
+    circular_features = np.around(circular_features).astype("uint16")
+    print(circular_features)
 
-    # circular_features = np.around(circular_features).astype("uint16")
 
     # print(circular_features[:,:,:])
 
     for i in circular_features[0,:]:
+        print(i)
         
-        # draw the outer circle
-        cv2.circle(im,(i[0],i[1]),i[2],(0,255,0),2)
-        # draw the center of the circle
-        cv2.circle(im,(i[0],i[1]),2,(0,0,255),3)
+        # # draw the outer circle
+        # cv2.circle(im,(i[0],i[1]),i[2],(0,255,0),2)
+        # # draw the center of the circle
+        # cv2.circle(im,(i[0],i[1]),2,(0,0,255),3)
 
-        #take square section of number containing tile
-        dim = i[2]*np.sin(np.deg2rad(45))
-        cropped_im = im[int(i[1]-dim):int(im[1]+dim), int(i[0]-dim):int(i[0]+dim)]
+        # # if pixel is outside of the circle, set it to 0
+        # for x in range(im.shape[0]):
+        #     for y in range(im.shape[1]):
+        #         if (x-i[0])**2 + (y-i[1])**2 > i[2]**2:
+        #             im[x,y] = 0
 
+        # crop the image to the circle
+        cropped_im = im[i[1]-i[2]:i[1]+i[2], i[0]-i[2]:i[0]+i[2]]
 
     
-    cv2.imshow('detected circles',im)
-    cv2.imshow('blur', im_blur)
+    print(cropped_im)
+    cv2.imshow('detected circles',cropped_im)
     cv2.waitKey(0)
 
     return cropped_im
