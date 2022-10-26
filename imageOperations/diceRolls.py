@@ -2,6 +2,7 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
+import numpy as np
 
 def cropToDie(img, colour):
     if colour == 'r':
@@ -89,6 +90,9 @@ if __name__ == '__main__' :
     # Define a video capture object
     vid = cv2.VideoCapture(1)
 
+    rNumList = [0,0,0,0,0,0,0,0]
+    yNumList = [0,0,0,0,0,0,0,0]
+
     # Ensure camera is working
     if not vid.isOpened():
         print("Cannot open camera")
@@ -121,7 +125,17 @@ if __name__ == '__main__' :
 
         yellowNumPips = countPips(mask, dieCropped)
 
-        print("[Red] is {}, [Yellow] is {}".format(redNumPips, yellowNumPips))
+        # print("[Red] is {}, [Yellow] is {}".format(redNumPips, yellowNumPips))
+        rNumList.insert(0, redNumPips)
+        yNumList.insert(0, yellowNumPips)
+
+        rNumList.pop()
+        yNumList.pop()
+
+        redNumPipsMode = max(set(rNumList), key=rNumList.count)
+        yellowNumPipsMode = max(set(yNumList), key=yNumList.count)
+
+        print("[Red] is {}, [Yellow] is {}".format(redNumPipsMode, yellowNumPipsMode))
 
 
     # After the loop release the cap object
