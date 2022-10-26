@@ -2,17 +2,18 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
+import numpy as np
 
 def cropToDie(img, colour):
     if colour == 'r':
-        img_threshold = ct.getRedDiceThreshold(img)
+        img_threshold = ct.getRedDiceThreshold(img, inlecture=False)
     elif colour == 'y':
-        img_threshold = ct.getYellowDiceThreshold(img)
-    #cv2.imshow("Dice red thresh", img_threshold)
+        img_threshold = ct.getYellowDiceThreshold(img, inlecture=False)
+    # cv2.imshow("Dice thresh", img_threshold)
     dilatedImg = imo.dilation(20, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     dieCropped = frame[y:y+h, x:x+w] # This image should be ballpark 200 pixels
-    #cv2.imshow("Dilated img", dilatedImg)
+    cv2.imshow("Dilated img", dilatedImg)
     #cv2.imshow("Dice red cropped", redDieCropped)
     return dieCropped
 
@@ -24,6 +25,8 @@ def getDieMask(img, colour):
         dieThresh = ct.getYellowDiceThreshold(img)
     
     mask = cv2.bitwise_not(dieThresh) # invert
+    mask = imo.erode(2, mask)
+ 
     return mask
 
 
@@ -87,6 +90,9 @@ if __name__ == '__main__' :
     # Define a video capture object
     vid = cv2.VideoCapture(1)
 
+    rNumList = [0,0,0,0,0,0,0,0]
+    yNumList = [0,0,0,0,0,0,0,0]
+
     # Ensure camera is working
     if not vid.isOpened():
         print("Cannot open camera")
@@ -101,24 +107,23 @@ if __name__ == '__main__' :
         # Our operations on the frame come here
         # Get just the part of the frame that has the board in it
         cv2.imshow("Dice", frame)
-        cv2.waitKey(1000)
+        cv2.waitKey(10)
 
         dieCropped = cropToDie(frame, 'r')
-        
         mask = getDieMask(dieCropped, 'r')
+        redNumPips = countPips(mask, dieCropped)
+        rNumList.insert(0, redNumPips)
+        rNumList.pop()
+        redNumPipsMode = max(set(rNumList), key=rNumList.count)
 
-        numPips = countPips(mask, dieCropped)
-
-        print("[Red] Dice roll result is {}".format(numPips))
-
-        dieCropped = cropToDie(frame, 'y')
-        cv2.imshow("Yellow die", dieCropped)
-        
+        dieCropped = cropToDie(frame, 'y')        
         mask = getDieMask(dieCropped, 'y')
+        yellowNumPips = countPips(mask, dieCropped)
+        yNumList.insert(0, yellowNumPips)
+        yNumList.pop()
+        yellowNumPipsMode = max(set(yNumList), key=yNumList.count)
 
-        numPips = countPips(mask, dieCropped)
-
-        print("[Yellow] Dice roll result is {}".format(numPips))
+        print("[Red] is {}, [Yellow] is {}".format(redNumPipsMode, yellowNumPipsMode))
 
 
     # After the loop release the cap object
