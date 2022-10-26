@@ -1,7 +1,6 @@
 # import the opencv library
 import cv2
 import argparse
-import time
 import numpy as np
 
 
@@ -14,23 +13,22 @@ def getCircularFeatures(im_base):
     im_blur = im.copy()
     # im_blur = cv2.GaussianBlur(im, (3,3), cv2.BORDER_DEFAULT)
 
-    print(im_blur.shape)
+    # print(im_blur.shape)
 
     #detect only one circle
     circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 1, 10, param1=60, param2=30, minRadius=15, maxRadius=25)
     if (circular_features is None):
         print("No circles found")
         return None
-    print("here")
-    print(circular_features)
+    # print("here")
+    # print(circular_features)
     circular_features = np.around(circular_features).astype("uint16")
-    print(circular_features)
 
 
     # print(circular_features[:,:,:])
 
     for i in circular_features[0,:]:
-        print(i)
+        # print(i)
         
         # # draw the outer circle
         # cv2.circle(im,(i[0],i[1]),i[2],(0,255,0),2)
@@ -47,7 +45,7 @@ def getCircularFeatures(im_base):
         cropped_im = im[i[1]-i[2]:i[1]+i[2], i[0]-i[2]:i[0]+i[2]]
 
     
-    print(cropped_im)
+    # print(cropped_im)
     cv2.imshow('detected circles',cropped_im)
     cv2.waitKey(0)
 
