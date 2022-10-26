@@ -47,15 +47,15 @@ def main(homographyImage, img_dir, filename, dataset_dir):
     number_tiles = [idNums.getCircularFeatures(cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)) for tile in tile_subimages]
     
     for i, tile in enumerate(number_tiles):
-        # if tile is not None:
-        cv2.imshow("Current tile", tile)
-        # print(tile)
-        cv2.waitKey(1000)
-        result = input("What tile num is this?: ")
-        fname = f"{dataset_dir}{int(result)}/{i}_{filename}" 
-        print(fname)
-        cv2.imwrite(fname, tile)
-        # print(result)
+        if tile is not None:
+            cv2.imshow("Current tile", tile)
+            # print(tile)
+            cv2.waitKey(200)
+            result = input("What tile num is this?: ")
+            fname = f"{dataset_dir}{int(result)}/{i}_{filename}" 
+            print(fname)
+            cv2.imwrite(fname, tile)
+            # print(result)
 
 
     # # After the loop release the cap object
@@ -76,6 +76,7 @@ if __name__ == '__main__' :
     # list all the files in the directory
     print(args.img_dir)
     files = os.listdir(args.img_dir)
+    print(len(files))
 
     for i in files:
         main(args.base_homography_image, args.img_dir, i, args.dataset_dir)
