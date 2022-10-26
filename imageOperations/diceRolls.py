@@ -103,27 +103,25 @@ if __name__ == '__main__' :
         # Our operations on the frame come here
         # Get just the part of the frame that has the board in it
         cv2.imshow("Dice", frame)
-        cv2.waitKey(1000)
+        cv2.waitKey(10)
 
         dieCropped = cropToDie(frame, 'r')
         # cv2.imshow("Red die", dieCropped)
 
         mask = getDieMask(dieCropped, 'r')
 
-        numPips = countPips(mask, dieCropped)
-
-        print("[Red] Dice roll result is {}".format(numPips))
+        redNumPips = countPips(mask, dieCropped)
 
         dieCropped = cropToDie(frame, 'y')
-        cv2.imshow("Yellow die", dieCropped)
+        #cv2.imshow("Yellow die", dieCropped)
         
         mask = getDieMask(dieCropped, 'y')
-        cv2.imshow("Yellow mask", mask)
+        #cv2.imshow("Yellow mask", mask)
 
 
-        numPips = countPips(mask, dieCropped)
+        yellowNumPips = countPips(mask, dieCropped)
 
-        print("[Yellow] Dice roll result is {}".format(numPips))
+        print("[Red] is {}, [Yellow] is {}".format(redNumPips, yellowNumPips))
 
 
     # After the loop release the cap object
