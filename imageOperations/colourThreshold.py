@@ -2,20 +2,70 @@ import numpy as np
 import cv2
 import argparse
 
-def getNumberThreshold(rgb_image, inlecture=True):
+def getRedBuildingsThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_nums = np.array([0.130*179,0.156*255,0.543*255])
-        upper_nums = np.array([0.142*179,0.431*255,0.904*255])
+        lower_rbuild = np.array([0.967*179,0.299*255,0.219*255])
+        upper_rbuild = np.array([0.049*179,1.000*255,0.989*255])
     else:
-        lower_nums = np.array([0.130*179,0.156*255,0.543*255])
-        upper_nums = np.array([0.142*179,0.431*255,0.904*255])
+        # PNR Threshold
+        lower_rbuild = np.array([0.967*179,0.299*255,0.219*255])
+        upper_rbuild = np.array([0.049*179,1.000*255,0.989*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
-    img_threshold = inRangeWrapper(frame_HSV, lower_nums, upper_nums)
+    img_threshold = inRangeWrapper(frame_HSV, lower_rbuild, upper_rbuild)
 
     img_threshold = closeAndOpen(img_threshold, 2)
 
+    return img_threshold
+
+def getBlueBuildingsThreshold(rgb_image, inlecture=False):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_bbuild = np.array([0.526*179,0.000*255,0.000*255])
+        upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
+    else:
+        # PNR Threshold
+        lower_bbuild = np.array([0.526*179,0.000*255,0.000*255])
+        upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_bbuild, upper_bbuild)
+
+    img_threshold = closeAndOpen(img_threshold, 2)
+
+    return img_threshold
+
+def getOrangeBuildingsThreshold(rgb_image, inlecture=False):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_obuild = np.array([0.043*179,0.875*255,0.450*255])
+        upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
+    else:
+        # PNR Threshold
+        lower_obuild = np.array([0.043*179,0.875*255,0.450*255])
+        upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_obuild, upper_obuild)
+
+    img_threshold = closeAndOpen(img_threshold, 2)
+
+    return img_threshold
+
+def getWhiteBuildingsThreshold(rgb_image, inlecture=False):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_wbuild = np.array([0.125*179,0.000*255,0.085*255])
+        upper_wbuild = np.array([0.204*179,0.248*255,0.965*255])
+    else:
+        # PNR Threshold
+        lower_wbuild = np.array([0.125*179,0.000*255,0.085*255])
+        upper_wbuild = np.array([0.204*179,0.248*255,0.965*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_wbuild, upper_wbuild)
+    
     return img_threshold
 
 def getRedDiceThreshold(rgb_image, inlecture=False):
@@ -103,7 +153,7 @@ def getWheatThreshold(rgb_image, inlecture=False):
     img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
-
+  
 def getRockThreshold(rgb_image, inlecture=False):
 
     if inlecture:
