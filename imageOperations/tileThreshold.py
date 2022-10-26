@@ -26,6 +26,12 @@ class PixelCoords:
 
     def __iter__(self):
         return iter((self.x, self.y))
+    
+    def distPixels(first, second):
+        # print(first)
+        # print(second)
+        return (first.x - second.x) ** 2 + (first.y - second.y) ** 2
+
 
 
 class TileThresholder:
