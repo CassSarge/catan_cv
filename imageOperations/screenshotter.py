@@ -7,7 +7,7 @@ import argparse
 
 if __name__ == '__main__' :
 
-    parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
+    parser = argparse.ArgumentParser(description='Code for screenshotter.')
     parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
     parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
 
