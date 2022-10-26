@@ -2,6 +2,22 @@ import numpy as np
 import cv2
 import argparse
 
+def getNumberThreshold(rgb_image, inlecture=True):
+    if inlecture:
+        # Lecture theatre threshold
+        lower_nums = np.array([0.130*179,0.156*255,0.543*255])
+        upper_nums = np.array([0.142*179,0.431*255,0.904*255])
+    else:
+        lower_nums = np.array([0.130*179,0.156*255,0.543*255])
+        upper_nums = np.array([0.142*179,0.431*255,0.904*255])
+
+    frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
+    img_threshold = inRangeWrapper(frame_HSV, lower_nums, upper_nums)
+
+    img_threshold = closeAndOpen(img_threshold, 2)
+
+    return img_threshold
+
 def getRedDiceThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
