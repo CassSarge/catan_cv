@@ -24,6 +24,8 @@ def getDieMask(img, colour):
         dieThresh = ct.getYellowDiceThreshold(img)
     
     mask = cv2.bitwise_not(dieThresh) # invert
+    mask = imo.erode(2, mask)
+ 
     return mask
 
 
@@ -113,9 +115,11 @@ if __name__ == '__main__' :
         print("[Red] Dice roll result is {}".format(numPips))
 
         dieCropped = cropToDie(frame, 'y')
-        # cv2.imshow("Yellow die", dieCropped)
+        cv2.imshow("Yellow die", dieCropped)
         
         mask = getDieMask(dieCropped, 'y')
+        cv2.imshow("Yellow mask", mask)
+
 
         numPips = countPips(mask, dieCropped)
 
