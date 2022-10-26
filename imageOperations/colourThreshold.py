@@ -65,9 +65,7 @@ def getWhiteBuildingsThreshold(rgb_image, inlecture=False):
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_wbuild, upper_wbuild)
-
-    img_threshold = closeAndOpen(img_threshold, 2)
-
+    
     return img_threshold
 
 def getRedDiceThreshold(rgb_image, inlecture=False):
@@ -155,7 +153,7 @@ def getWheatThreshold(rgb_image, inlecture=False):
     img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
-
+  
 def getRockThreshold(rgb_image, inlecture=False):
 
     if inlecture:

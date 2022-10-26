@@ -6,6 +6,7 @@ import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
 import featureMatchTiles as fmt
+import identifyNumbers as idNums
 from skimage.metrics import structural_similarity as compare_ssim
 import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
@@ -102,7 +103,7 @@ class BoardGrabber:
             elif cv2.waitKey(0) & 0xFF == ord('n'):
                 self.M = None
 
-    def getBoardState(self, ):
+    def getBoardState(self):
         curr = self.getFlattenedFrame()
         cv2.imshow('Adjusted Frame Live', curr)
 
@@ -110,8 +111,10 @@ class BoardGrabber:
         curr_overlay = curr.copy()
 
         tiles = []
+        centers = []
 
         for i, (x2, y2) in enumerate(self.thresholder):
+            centers.append((x2, y2))
 
             bb_size = 40
             tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
@@ -127,6 +130,8 @@ class BoardGrabber:
             most_likely_number = 0
             has_thief = i == self.thiefTile
 
+
+
             #cv2.imshow("Current Tile", currentTileImg)
             # for (k,v) in thresholds.items():
             #     print(f"Count for {k} is {cv2.countNonZero(v)}")
@@ -139,7 +144,7 @@ class BoardGrabber:
 
         cv2.imshow("image with labelled tiles", curr_overlay)
 
-        return tiles
+        return (tiles, centers)
     
     def findThiefTile(self, verbose = False, expected_blobs = 1):
         curr = self.getFlattenedFrame()
@@ -219,7 +224,7 @@ if __name__ == '__main__' :
 
     while(True):
         board_grabber.findThiefTile()
-        tiles = board_grabber.getBoardState()
+        tiles, centers = board_grabber.getBoardState()
         print(len(tiles))
         print(tiles[0:3])
         print(tiles[3:7])
