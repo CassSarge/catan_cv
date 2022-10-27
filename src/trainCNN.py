@@ -1,4 +1,3 @@
-from venv import create
 import tensorflow as tf
 import keras
 from keras.models import Sequential
@@ -66,15 +65,12 @@ def main():
     img_height = 80
 
     train_ds, val_ds = create_dataset(args.data_dir)
-    print(train_ds.class_names)
-    print(val_ds.class_names)
 
     num_classes = len(train_ds.class_names)
 
     for image_batch, labels_batch in train_ds:
         print(image_batch.shape)
         print(labels_batch.shape)
-        print(image_batch)
         break
 
     AUTOTUNE = tf.data.AUTOTUNE
@@ -83,23 +79,26 @@ def main():
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
     data_augmentation = keras.Sequential(
-        [layers.RandomRotation(0.8, input_shape=(img_height, img_width, 3), fill_value = 0.0)]
+        [layers.RandomRotation(0.5, input_shape=(img_height, img_width, 3), fill_value = 0.0)]
     )
 
     model = Sequential(
         [
             data_augmentation,
             layers.Rescaling(1.0 / 255),
-            layers.Conv2D(16, 3, padding="same", activation="relu"),
+            layers.Conv2D(16, 3, padding="same", use_bias=True, activation="relu"),
             layers.MaxPooling2D(),
-            layers.Conv2D(32, 3, padding="same", activation="relu"),
+            layers.Conv2D(32, 3, padding="same", use_bias=True, activation="relu"),
             layers.MaxPooling2D(),
             layers.Conv2D(64, 3, padding="same", activation="relu"),
+            layers.MaxPooling2D(),
+            layers.Conv2D(128, 3, padding="same", activation="relu"),
             layers.MaxPooling2D(),
             layers.Dropout(0.2),
             layers.Flatten(),
             layers.Dense(128, activation="relu"),
-            layers.Dense(num_classes, name="outputs"),
+            layers.Dense(64, activation="relu"),
+            layers.Dense(num_classes, name="outputs", activation="softmax"),
         ]
     )
 
@@ -111,7 +110,7 @@ def main():
 
     model.summary()
 
-    epochs = 150
+    epochs = 250
     history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
 
     acc = history.history["accuracy"]
