@@ -9,8 +9,8 @@ def getRedBuildingsThreshold(rgb_image, inlecture=False):
         upper_rbuild = np.array([0.049*179,1.000*255,0.989*255])
     else:
         # PNR Threshold
-        lower_rbuild = np.array([0.967*179,0.299*255,0.219*255])
-        upper_rbuild = np.array([0.049*179,1.000*255,0.989*255])
+        lower_rbuild = np.array([0.928*179,0.509*255,0.538*255])
+        upper_rbuild = np.array([0.013*179,1.000*255,0.917*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_rbuild, upper_rbuild)
@@ -26,8 +26,8 @@ def getBlueBuildingsThreshold(rgb_image, inlecture=False):
         upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
     else:
         # PNR Threshold
-        lower_bbuild = np.array([0.526*179,0.000*255,0.000*255])
-        upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
+        lower_bbuild = np.array([0.551*179,0.500*255,0.000*255])
+        upper_bbuild = np.array([0.611*179,1.000*255,0.576*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_bbuild, upper_bbuild)
@@ -43,8 +43,8 @@ def getOrangeBuildingsThreshold(rgb_image, inlecture=False):
         upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
     else:
         # PNR Threshold
-        lower_obuild = np.array([0.043*179,0.875*255,0.450*255])
-        upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
+        lower_obuild = np.array([0.021*179,0.779*255,0.656*255])
+        upper_obuild = np.array([0.071*179,1.000*255,0.950*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_obuild, upper_obuild)
@@ -60,8 +60,8 @@ def getWhiteBuildingsThreshold(rgb_image, inlecture=False):
         upper_wbuild = np.array([0.204*179,0.248*255,0.965*255])
     else:
         # PNR Threshold
-        lower_wbuild = np.array([0.125*179,0.000*255,0.085*255])
-        upper_wbuild = np.array([0.204*179,0.248*255,0.965*255])
+        lower_wbuild = np.array([0.062*179,0.235*255,0.694*255])
+        upper_wbuild = np.array([0.082*179,0.367*255,1.000*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_wbuild, upper_wbuild)
