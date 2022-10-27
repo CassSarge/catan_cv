@@ -9,13 +9,13 @@ def getRedBuildingsThreshold(rgb_image, inlecture=False):
         upper_rbuild = np.array([0.049*179,1.000*255,0.989*255])
     else:
         # PNR Threshold
-        lower_rbuild = np.array([0.928*179,0.509*255,0.538*255])
-        upper_rbuild = np.array([0.013*179,1.000*255,0.917*255])
+        lower_rbuild = np.array([0.991*179,0.436*255,0.369*255])
+        upper_rbuild = np.array([0.033*179,1.000*255,0.690*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_rbuild, upper_rbuild)
 
-    img_threshold = closeAndOpen(img_threshold, 2)
+    # img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
 
@@ -26,46 +26,48 @@ def getBlueBuildingsThreshold(rgb_image, inlecture=False):
         upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
     else:
         # PNR Threshold
-        lower_bbuild = np.array([0.551*179,0.500*255,0.000*255])
-        upper_bbuild = np.array([0.611*179,1.000*255,0.576*255])
+        lower_bbuild = np.array([0.595*179,0.218*255,0.141*255])
+        upper_bbuild = np.array([0.675*179,1.000*255,0.608*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_bbuild, upper_bbuild)
 
-    img_threshold = closeAndOpen(img_threshold, 2)
+    # img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
 
 def getOrangeBuildingsThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_obuild = np.array([0.043*179,0.875*255,0.450*255])
-        upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
+        lower_obuild = np.array([0.012*179,0.856*255,0.421*255])
+        upper_obuild = np.array([0.110*179,1.000*255,0.835*255])
     else:
         # PNR Threshold
-        lower_obuild = np.array([0.021*179,0.779*255,0.656*255])
-        upper_obuild = np.array([0.071*179,1.000*255,0.950*255])
+        lower_obuild = np.array([0.000*179,0.717*255,0.544*255])
+        upper_obuild = np.array([0.090*179,1.000*255,0.725*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_obuild, upper_obuild)
 
-    img_threshold = closeAndOpen(img_threshold, 2)
+    # img_threshold = closeAndOpen(img_threshold, 8)
 
     return img_threshold
 
 def getWhiteBuildingsThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_wbuild = np.array([0.125*179,0.000*255,0.085*255])
-        upper_wbuild = np.array([0.204*179,0.248*255,0.965*255])
+        lower_wbuild = np.array([0.095*179,0.018*255,0.808*255])
+        upper_wbuild = np.array([0.333*179,0.088*255,0.890*255])
     else:
         # PNR Threshold
-        lower_wbuild = np.array([0.062*179,0.235*255,0.694*255])
-        upper_wbuild = np.array([0.082*179,0.367*255,1.000*255])
+        lower_wbuild = np.array([0.064*179,0.112*255,0.584*255])
+        upper_wbuild = np.array([0.107*179,0.219*255,0.796*255])
 
     frame_HSV = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2HSV)
     img_threshold = inRangeWrapper(frame_HSV, lower_wbuild, upper_wbuild)
     
+    # img_threshold = closeAndOpen(img_threshold, 8)
+
     return img_threshold
 
 def getRedDiceThreshold(rgb_image, inlecture=False):
@@ -102,8 +104,18 @@ def getYellowDiceThreshold(rgb_image, inlecture=False):
 
     return img_threshold
 
+def getSettlementThresholds(rgb_image, inlecture = False):
+    img_w = getWhiteBuildingsThreshold(rgb_image, inlecture)
+    img_o = getOrangeBuildingsThreshold(rgb_image, inlecture)
+    img_r = getRedBuildingsThreshold(rgb_image, inlecture)
+    img_b = getBlueBuildingsThreshold(rgb_image, inlecture)
 
-def getThresholds(rgb_image, inlecture = False):
+    results = {"White": img_w, "Orange": img_o, "Red": img_r, "Blue":
+            img_b}
+
+    return results
+
+def getTileThresholds(rgb_image, inlecture = False):
     img_wheat = getWheatThreshold(rgb_image, inlecture)
     img_rock = getRockThreshold(rgb_image, inlecture)
     img_field = getFieldThreshold(rgb_image, inlecture)
