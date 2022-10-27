@@ -2,37 +2,7 @@ import numpy as np
 import cv2
 import argparse
 from matplotlib import pyplot as plt
-
-
-class PixelCoords:
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
-
-    def __add__(self, other):
-        return PixelCoords(self.x + other.x, self.y + other.y)
-
-    def __sub__(self, other):
-        return PixelCoords(self.x - other.x, self.y - other.y)
-
-    def __mul__(self, other):
-        return PixelCoords(self.x * other, self.y * other)
-
-    def __floordiv__(self, other):
-        return PixelCoords(self.x // other, self.y // other)
-
-    def __repr__(self) -> str:
-        return f"({self.x}, {self.y})"
-
-    def __iter__(self):
-        return iter((self.x, self.y))
-    
-    def distPixels(first, second):
-        # print(first)
-        # print(second)
-        return (first.x - second.x) ** 2 + (first.y - second.y) ** 2
-
-
+from pixelCoords import PixelCoords
 
 class TileThresholder:
     def __init__(self, image, calibrate=False):
@@ -88,6 +58,12 @@ class TileThresholder:
             for j in range(rng):
                 (x, y) = self.getTileCoords(i, j)
                 yield PixelCoords(x, y)
+    
+    def vertices(self):
+        coords = [(201, 124), (258, 87), (319, 120), (377, 82), (436, 115), (495, 79), (555, 109), (150, 227), (205, 194), (267, 224), (324, 188), (381, 219), (438, 183), (497, 215), (555, 178), (611, 211), (99, 328), (154, 296), (213, 324), (271, 288), (329, 320), (384, 284), (442, 316), (499, 280), (555, 311), (612, 276), (668, 308), (105, 395), (163, 423), (218, 388), (276, 420), (331, 384), (388, 414), (443, 379), (499, 409), (555, 376), (611, 404), (666, 370), (167, 485), (226, 513), (278, 480), (335, 510), (388, 477), (444, 503), (500, 470), (555, 500), (609, 468), (229, 573), (284, 599), (338, 568), (393, 594), (445, 562), (499, 589), (554, 560)]
+        coords = list(map(lambda x: PixelCoords(x[0], x[1]), coords))
+
+        yield from coords
 
     listOfKeyPoints = [
         "Centre of top row leftmost tile",
