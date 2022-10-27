@@ -6,8 +6,7 @@ import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
 import pixelCoords as pc
-import featureMatchTiles as fmt
-import identifyNumbers as idNums
+import dummyVideo as dummyVid
 from skimage.metrics import structural_similarity as compare_ssim
 import time
 # from adaptiveHistogramEqualisation import adaptiveHistEq
@@ -34,13 +33,14 @@ class Tile:
         return hash((self.type, self.number, self.has_thief))
 
 class BoardGrabber:
-    def __init__(self, video_source, board_template):
+    def __init__(self, video_source, board_template, inlecture):
         self.vid = video_source
         self.board_template = board_template
         self.cropCoords = None
         self.tileImage = None
         self.numbersImage = None
         self.thresholder = None
+        self.inlecture = inlecture
 
         self.thiefImage = None
         self.thiefTile = None
@@ -75,7 +75,7 @@ class BoardGrabber:
         while True:
             frame = self.getFrame()
 
-            dilated = imo.dilation(20, ct.getOceanThreshold(frame))
+            dilated = imo.dilation(20, ct.getOceanThreshold(frame, self.inlecture))
             x,y,w,h = imo.largestContourDetect(frame, dilated)
 
             cropped = frame[y:y+h, x:x+w]
@@ -119,7 +119,7 @@ class BoardGrabber:
 
             bb_size = 40
             tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
-            thresholds = ct.getTileThresholds(tile)
+            thresholds = ct.getTileThresholds(tile, self.inlecture)
 
             cv2.circle(curr_overlay, (x2, y2), 5, (0, 0, 255), -1)
             cv2.rectangle(
@@ -207,7 +207,7 @@ class BoardGrabber:
             boxsize = radius*2
 
             
-            thresholds = ct.getSettlementThresholds(vertex, inlecture = False)
+            thresholds = ct.getSettlementThresholds(vertex, self.inlecture)
             # cv2.imshow("White", thresholds["White"])
             # cv2.imshow("Orange", thresholds["Orange"])
             # cv2.imshow("Blue", thresholds["Blue"])
@@ -239,11 +239,22 @@ if __name__ == '__main__' :
     parser = argparse.ArgumentParser(description='Code for Histogram Equalization tutorial.')
     parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
     parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
+    parser.add_argument("-f", "--filename", help="Full filepath to use instead of video stream", default=None)
+    parser.add_argument("-l", "--location", help="Location for colour thresholding, 'pnr' or 'lecture'", default="pnr")
 
     args = parser.parse_args()
 
     # Define a video capture object
-    vid = cv2.VideoCapture(args.video_index)
+    if args.filename is None:
+        vid = cv2.VideoCapture(args.video_index)
+    else:
+        vid = dummyVid.dummyVideo(f"{args.filename}")
+
+    if args.location == "pnr":
+        inlecture = False
+    elif args.location == "lecture":
+        inlecture = True
+
 
     # Ensure camera is working
     if not vid.isOpened():
@@ -252,7 +263,7 @@ if __name__ == '__main__' :
 
     templateImage = f'{args.img_dir}/catanBoardTransparent2.png'
 
-    board_grabber = BoardGrabber(vid, templateImage)
+    board_grabber = BoardGrabber(vid, templateImage, inlecture)
     board_grabber.getHomographyTF()
     # print(board_grabber.tilesImage)
 
