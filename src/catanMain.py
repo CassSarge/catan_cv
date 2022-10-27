@@ -197,11 +197,10 @@ class BoardGrabber:
     def checkForSettlements(self, verbose = False):
         curr = self.getFlattenedFrame()
 
-        radius = 15
-        threshRatio = 0.05
+        radius = 15 # 10
+        threshRatio = 0.25 # 0.2 ?
 
         for (x,y) in self.thresholder.vertices():
-            cv2.circle(curr, (x,y), radius, (0,0,255), 1)
 
             vertex = curr[y-radius:y+radius, x-radius:x+radius]
             boxsize = radius*2
@@ -223,13 +222,20 @@ class BoardGrabber:
 
             if nonZeroMax > threshRatio*(boxsize*boxsize):
                 cv2.putText(curr, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                # print("__________________")
+                # print(f"ratio is {nonZeroMax/(boxsize*boxsize)}")
+                # print(f"String is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
+                cv2.circle(curr, (x,y), radius, (0,0,255), 1)
+
             else:
-                cv2.putText(curr, "None", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                # cv2.putText(curr, "None", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+                pass
 
             
 
 
         cv2.imshow("Vertices", curr)
+        cv2.waitKey(0)
 
         return
 
