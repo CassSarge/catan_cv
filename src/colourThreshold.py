@@ -39,8 +39,8 @@ def getBlueBuildingsThreshold(rgb_image, inlecture=False):
 def getOrangeBuildingsThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_obuild = np.array([0.043*179,0.875*255,0.450*255])
-        upper_obuild = np.array([0.116*179,1.000*255,0.902*255])
+        lower_obuild = np.array([0.012*179,0.856*255,0.421*255])
+        upper_obuild = np.array([0.110*179,1.000*255,0.835*255])
     else:
         # PNR Threshold
         lower_obuild = np.array([0.000*179,0.717*255,0.544*255])
