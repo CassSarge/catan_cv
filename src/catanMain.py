@@ -5,6 +5,7 @@ import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
 import tileThreshold as tt
+import pixelCoords as pc
 import featureMatchTiles as fmt
 import identifyNumbers as idNums
 from skimage.metrics import structural_similarity as compare_ssim
@@ -180,7 +181,7 @@ class BoardGrabber:
         cv2.imshow("Thief", base)
 
         for (x,y) in centroids:
-            closest_tile_index = min(enumerate(self.thresholder), key=lambda t: tt.PixelCoords.distPixels(t[1], tt.PixelCoords(x,y)))[0]
+            closest_tile_index = min(enumerate(self.thresholder), key=lambda t: pc.PixelCoords.distPixels(t[1], pc.PixelCoords(x,y)))[0]
             if closest_tile_index != self.thiefTile:
 
                 self.thiefTile = closest_tile_index
