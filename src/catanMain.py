@@ -12,6 +12,7 @@ from skimage.metrics import structural_similarity as compare_ssim
 import time
 import identifyNumbers as idNums
 import predict as pd
+from collections import defaultdict
 
 class Vertex:
     def __init__(self, x, y, settlement_colour = None):
@@ -359,12 +360,17 @@ if __name__ == '__main__' :
         # Loop through settlements and check what each player should get based on latest 
         board_grabber.lastDiceRoll = 6
 
+        playerUpdates = defaultdict(int) 
         for tile in board_grabber.Tiles:
             # print(f"{tile.number=} vs {board_grabber.lastDiceRoll=}")
             if tile.number == board_grabber.lastDiceRoll:
                 for vertex in tile.vertices:
                     if vertex.settlement_colour is not None:
-                        print(f"{vertex.settlement_colour} pick up a {tile.type}")
+                        playerUpdates[(vertex.settlement_colour, tile.type)] += 1
+                        # print(f"{vertex.settlement_colour} pick up a {tile.type}")
+
+        for player, update in playerUpdates.items():
+            print(f"{player[0]} Player gets {update} {player[1]}")
         
         # dice roll result
 
