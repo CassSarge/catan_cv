@@ -45,6 +45,9 @@ class BoardGrabber:
         self.thiefImage = None
         self.thiefTile = None
 
+        self.Tiles = None
+        self.Centres = None
+
         self.hasbeenread = False
         # will need current and previous board state here
 
@@ -112,10 +115,10 @@ class BoardGrabber:
         curr_overlay = curr.copy()
 
         tiles = []
-        centers = []
+        centres = []
 
         for i, (x2, y2) in enumerate(self.thresholder):
-            centers.append((x2, y2))
+            centres.append((x2, y2))
 
             bb_size = 40
             tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
@@ -133,10 +136,12 @@ class BoardGrabber:
 
             tiles.append(Tile(most_likely_type, most_likely_number, has_thief))
 
+        self.Tiles = tiles
+        self.Centres = centres
 
-        cv2.imshow("image with labelled tiles", curr_overlay)
+        # cv2.imshow("image with labelled tiles", curr_overlay)
 
-        return (tiles, centers)
+        return curr_overlay
     
     def findThiefTile(self, verbose = False, expected_blobs = 1):
         curr = self.getFlattenedFrame()
@@ -223,7 +228,6 @@ class BoardGrabber:
                 pass
 
         cv2.imshow("Vertices", curr)
-        cv2.waitKey(0)
 
         return
 
@@ -268,13 +272,36 @@ if __name__ == '__main__' :
 
     cv2.destroyAllWindows()
 
-    # tiles, centers = board_grabber.getBoardState()
-    # cv2.waitKey(0)
+    # Get board state and wait for it to show
+    tile_overlay = board_grabber.getBoardState()
+    cv2.imshow("Tile overlay", tile_overlay)
+    cv2.waitKey(1000)
+
+    input("Please place the number tiles in the centre of each hexagon and press enter when ready: ")
+
+    # Identify numbers and add it to the board state, along with an overlay for it
+    # Store all the numbers in the tiles objects
+
+    # Wait for user input to say everyone has placed their settlements and roads
+    # Start main loop
+
+    # Set previous frame as current frame
 
     while(True):
+        # Get and show latest frame
+
+        # Check if thief has moved from previous round by comparing with previous frame
         board_grabber.findThiefTile()
-        tiles, centers = board_grabber.getBoardState()
+        # Update numbers based on thief 
+
+        # Check where settlements are
         board_grabber.checkForSettlements()
+
+        # Loop through settlements and check what each player should get based on latest 
+        # dice roll result
+
+
+
         # print(len(tiles))
         # print(tiles[0:3])
         # print(tiles[3:7])
@@ -282,6 +309,8 @@ if __name__ == '__main__' :
         # print(tiles[12:16])
         # print(tiles[16:19])
         
+        # Wait for user input saying its the next turn
+            # Later wait for a new dice roll and loop again after that
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         time.sleep(0.2)
