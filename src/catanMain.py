@@ -361,6 +361,8 @@ if __name__ == '__main__' :
         board_grabber.lastDiceRoll = 6
 
         playerUpdates = defaultdict(int) 
+        terminal_colours = {"Blue" : '\033[94m', "Orange" : '\033[93m', "Red" : '\033[91m', "White" : '\033[0m'}
+
         for tile in board_grabber.Tiles:
             # print(f"{tile.number=} vs {board_grabber.lastDiceRoll=}")
             if tile.number == board_grabber.lastDiceRoll:
@@ -370,7 +372,7 @@ if __name__ == '__main__' :
                         # print(f"{vertex.settlement_colour} pick up a {tile.type}")
 
         for player, update in playerUpdates.items():
-            print(f"{player[0]} Player gets {update} {player[1]}")
+            print(f"{terminal_colours[player[0]]}{player[0]} Player gets {update} {player[1]}{terminal_colours["White"]}")
         
         # dice roll result
 
