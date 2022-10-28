@@ -277,6 +277,9 @@ class BoardGrabber:
                 self.Tiles[i].number = pd.predictNumberFromImg(tile, m)
                 #print(self.Tiles[i].number)
                 #cv2.waitKey(0)
+            else:
+                self.Tiles[i].has_thief = True
+                self.Tiles[i].type = "desert"
                 
 
 if __name__ == '__main__' :
