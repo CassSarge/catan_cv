@@ -76,6 +76,8 @@ def countPips(mask, dieCropped):
     # cv2.imshow("Output", output)
     # cv2.imshow("Mask", mask)
     # cv2.waitKey(0)
+    if numPips == 0:
+        numPips = None
 
     return(numPips)
 
@@ -83,15 +85,17 @@ def countPips(mask, dieCropped):
 if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Dice rolling with connected components')
-    parser.add_argument("-d", '--img_dir', help='Path to testing images', default="catanImages/")
+    parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
 
     args = parser.parse_args()
 
     # Define a video capture object
     vid = cv2.VideoCapture(1)
 
-    rNumList = [0,0,0,0,0,0,0,0]
-    yNumList = [0,0,0,0,0,0,0,0]
+    rNumList = [None,None,None,None,None,None,None,None]
+    yNumList = [None,None,None,None,None,None,None,None]
+
+    dice_in_hand = True
 
     # Ensure camera is working
     if not vid.isOpened():
@@ -109,21 +113,40 @@ if __name__ == '__main__' :
         cv2.imshow("Dice", frame)
         cv2.waitKey(10)
 
+        # Crop to the dice, get the mask for this colour
         dieCropped = cropToDie(frame, 'r')
         mask = getDieMask(dieCropped, 'r')
+        # Count number of pips
         redNumPips = countPips(mask, dieCropped)
+        # Put this number at the start of the list, remove last entry
         rNumList.insert(0, redNumPips)
         rNumList.pop()
-        redNumPipsMode = max(set(rNumList), key=rNumList.count)
 
         dieCropped = cropToDie(frame, 'y')        
         mask = getDieMask(dieCropped, 'y')
         yellowNumPips = countPips(mask, dieCropped)
         yNumList.insert(0, yellowNumPips)
         yNumList.pop()
-        yellowNumPipsMode = max(set(yNumList), key=yNumList.count)
 
-        print("[Red] is {}, [Yellow] is {}".format(redNumPipsMode, yellowNumPipsMode))
+        # Get the most commonly occuring number in the list (removes error results)
+        if any(x is None for x in rNumList):
+            redNumPipsMode = None
+        else:
+            redNumPipsMode = max(set(rNumList), key=rNumList.count)
+
+        if any(x is None for x in yNumList):
+            yellowNumPipsMode = None
+        else:
+            yellowNumPipsMode = max(set(yNumList), key=yNumList.count)
+
+        
+        if redNumPipsMode is None or yellowNumPipsMode is None:
+            dice_in_hand = True
+        else:
+            if dice_in_hand == True:
+                dice_in_hand = False
+            # print(f"[Red] is {redNumPipsMode}, [Yellow] is {yellowNumPipsMode}")
+                print(f"{redNumPipsMode + yellowNumPipsMode}")
 
 
     # After the loop release the cap object
