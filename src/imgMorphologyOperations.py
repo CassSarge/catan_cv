@@ -36,7 +36,7 @@ def largestContourDetect(img, thresh):
         x,y,w,h= cv2.boundingRect(sorted_contours[0])
     else:
         x,y,w,h = 0,0,1920,1080
-        print("Warning: len(sorted_contours < 0")
+        #print("Warning: len(sorted_contours < 0")
     # cv2.waitKey(0)
 
     return x,y,w,h

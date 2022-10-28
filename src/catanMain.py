@@ -1,4 +1,5 @@
 # import the opencv library
+from re import I
 import cv2
 import homography as hg
 import colourThreshold as ct
@@ -9,13 +10,22 @@ import pixelCoords as pc
 import dummyVideo as dummyVid
 from skimage.metrics import structural_similarity as compare_ssim
 import time
-# from adaptiveHistogramEqualisation import adaptiveHistEq
+import identifyNumbers as idNums
+import predict as pd
 
+class Vertex:
+    def __init__(self, x, y, settlement_colour = None):
+        self.settlement_colour = settlement_colour
+        self.coords = pc.PixelCoords(x, y)
+    
 class Tile:
-    def __init__(self, type, number, has_thief = False):
+    def __init__(self, type, number, tile_image, has_thief = False):
         self.type = type
+        self.tile_image = tile_image
         self.number = number
         self.has_thief = has_thief
+        self.number = None
+        self.vertices = None
 
     def __str__(self):
         return f"Tile: {self.type}, {self.number}, {self.has_thief}"
@@ -45,7 +55,13 @@ class BoardGrabber:
         self.thiefImage = None
         self.thiefTile = None
 
+        self.Tiles = None
+        self.Centres = None
+        self.Vertices = None
+
         self.hasbeenread = False
+
+        self.lastDiceRoll = None
         # will need current and previous board state here
 
         if not self.vid.isOpened():
@@ -57,7 +73,6 @@ class BoardGrabber:
         return frame[y:y+h, x:x+w]
 
     def getFrame(self):
-        # return cv2.imread("catanImages/screenshot10:16:54.png")
         (ret, frame) = self.vid.read()
         if ret:
             return frame
@@ -112,14 +127,14 @@ class BoardGrabber:
         curr_overlay = curr.copy()
 
         tiles = []
-        centers = []
+        centres = []
 
         for i, (x2, y2) in enumerate(self.thresholder):
-            centers.append((x2, y2))
+            centres.append(pc.PixelCoords(x2, y2))
 
             bb_size = 40
-            tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
-            thresholds = ct.getTileThresholds(tile, self.inlecture)
+            tile_img = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
+            thresholds = ct.getTileThresholds(tile_img, self.inlecture)
 
             cv2.circle(curr_overlay, (x2, y2), 5, (0, 0, 255), -1)
             cv2.rectangle(
@@ -131,21 +146,14 @@ class BoardGrabber:
             most_likely_number = 0
             has_thief = i == self.thiefTile
 
+            tiles.append(Tile(most_likely_type, most_likely_number, tile_img, has_thief))
 
+        self.Tiles = tiles
+        self.Centres = centres
 
-            #cv2.imshow("Current Tile", currentTileImg)
-            # for (k,v) in thresholds.items():
-            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
+        # cv2.imshow("image with labelled tiles", curr_overlay)
 
-            # print out the key for the largest value size
-            # print(f"Tile {i} is {most_likely_type}")
-
-            tiles.append(Tile(most_likely_type, most_likely_number, has_thief))
-
-
-        cv2.imshow("image with labelled tiles", curr_overlay)
-
-        return (tiles, centers)
+        return curr_overlay
     
     def findThiefTile(self, verbose = False, expected_blobs = 1):
         curr = self.getFlattenedFrame()
@@ -200,6 +208,7 @@ class BoardGrabber:
         radius = 15 # 10
         threshRatio = 0.25 # 0.2 ?
 
+        vertices = []
         for (x,y) in self.thresholder.vertices():
 
             vertex = curr[y-radius:y+radius, x-radius:x+radius]
@@ -219,26 +228,56 @@ class BoardGrabber:
                 if currentNonZero > nonZeroMax:
                     nonZeroMax = currentNonZero
                 
-
             if nonZeroMax > threshRatio*(boxsize*boxsize):
                 cv2.putText(curr, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                # print("__________________")
-                # print(f"ratio is {nonZeroMax/(boxsize*boxsize)}")
-                # print(f"String is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
                 cv2.circle(curr, (x,y), radius, (0,0,255), 1)
-
+                vertices.append(Vertex(x, y, settlement_colour = f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}"))
             else:
                 # cv2.putText(curr, "None", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                pass
+                vertices.append(Vertex(x, y, settlement_colour = None))
 
-            
-
-
+        self.Vertices = vertices
         cv2.imshow("Vertices", curr)
-        cv2.waitKey(0)
 
         return
 
+    def getRelatedSettlements(self):
+    
+        tile_radius = 100 ** 2
+        for i, (x,y) in enumerate(self.Centres):
+            self.Tiles[i].vertices = []
+            vertex_distances = list(map(lambda t: pc.PixelCoords.distPixels(t.coords, pc.PixelCoords(x,y)), self.Vertices))
+            for j, dist in enumerate(vertex_distances):
+                if dist < tile_radius:
+                    self.Tiles[i].vertices.append(self.Vertices[j])
+                    # Woohoo this vertex is with this tile
+
+    def classifyNumbers(self):
+        # for tile in self.Tiles:
+        #     cv2.imshow("Tile", tile.tile_image)
+        #     cv2.waitKey(0)
+
+        m = pd.load_model("model/epochs1000.hdf5")
+
+        bb_size = 45
+
+        image = board_grabber.getFlattenedFrame()
+
+        # for each center, grab the bounding box aronud the center and combine them into a list
+        tile_subimages = []
+        for i, (x,y) in enumerate(self.Centres):
+            tile_subimages.append(image[y-bb_size:y+bb_size, x-bb_size:x+bb_size])
+
+        # for each tile image, call idNums.getCircularFeatures
+        number_tiles = [idNums.getCircularFeatures(cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)) for tile in tile_subimages]
+        
+        for i, tile in enumerate(number_tiles):
+            if tile is not None:
+                #cv2.imshow("Current tile", tile)
+                self.Tiles[i].number = pd.predictNumberFromImg(tile, m)
+                #print(self.Tiles[i].number)
+                #cv2.waitKey(0)
+                
 
 if __name__ == '__main__' :
 
@@ -253,36 +292,84 @@ if __name__ == '__main__' :
     # Define a video capture object
     if args.filename is None:
         vid = cv2.VideoCapture(args.video_index)
+    # If we are using a dummy video (still image) instead
     else:
         vid = dummyVid.dummyVideo(f"{args.filename}")
 
+    # Decide which set of lighting conditions to use for colour masks
     if args.location == "pnr":
         inlecture = False
     elif args.location == "lecture":
         inlecture = True
-
 
     # Ensure camera is working
     if not vid.isOpened():
         print("Cannot open camera")
         exit()
 
+    # Template image to perform homography to
     templateImage = f'{args.img_dir}/catanBoardTransparent2.png'
 
     board_grabber = BoardGrabber(vid, templateImage, inlecture)
-    board_grabber.getHomographyTF()
-    # print(board_grabber.tilesImage)
 
-    #cv2.waitKey(0)
+    # Get a good homography
+    board_grabber.getHomographyTF()
 
     cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", board_grabber.tilesImage)
 
     cv2.destroyAllWindows()
 
+    # Get board state and wait for it to show
+    tile_overlay = board_grabber.getBoardState()
+    cv2.imshow("Tile overlay", tile_overlay)
+    cv2.waitKey(1000)
+
+    print("Please place the number tiles on each hexagon and the thief")
+    input("Press enter when ready: ")
+
+    # Identify numbers and add it to the board state, along with an overlay for it
+    # Store all the numbers in the tiles objects
+    board_grabber.classifyNumbers()
+
+    # Wait for user input to say everyone has placed their settlements and roads
+    print("Please have each player place their first two settlements and roads")
+    input("Press enter when ready: ")
+    # Start main loop
+    
+
+    # Set previous frame as current frame
+
     while(True):
+        # Get and show latest frame
+
+        # Check if thief has moved from previous round by comparing with previous frame
         board_grabber.findThiefTile()
-        tiles, centers = board_grabber.getBoardState()
+
+        # Check where settlements are
         board_grabber.checkForSettlements()
+        board_grabber.getRelatedSettlements()
+
+        # for i, tile in enumerate(board_grabber.Tiles):
+        #     print(i)
+        #     for vertex in tile.vertices:
+        #         print(vertex.settlement_colour)
+        #     print("----")
+        
+
+        # Loop through settlements and check what each player should get based on latest 
+        board_grabber.lastDiceRoll = 6
+
+        for tile in board_grabber.Tiles:
+            # print(f"{tile.number=} vs {board_grabber.lastDiceRoll=}")
+            if tile.number == board_grabber.lastDiceRoll:
+                for vertex in tile.vertices:
+                    if vertex.settlement_colour is not None:
+                        print(f"{vertex.settlement_colour} pick up a {tile.type}")
+        
+        # dice roll result
+
+
+
         # print(len(tiles))
         # print(tiles[0:3])
         # print(tiles[3:7])
@@ -290,11 +377,14 @@ if __name__ == '__main__' :
         # print(tiles[12:16])
         # print(tiles[16:19])
         
+        # Wait for user input saying its the next turn
+            # Later wait for a new dice roll and loop again after that
+        print("_______")
+        cv2.waitKey(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         time.sleep(0.2)
     
-
     # # After the loop release the cap object
     vid.release()
     # Destroy all the windows
