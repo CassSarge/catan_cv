@@ -13,7 +13,11 @@ import time
 import identifyNumbers as idNums
 import predict as pd
 
-
+class Vertex:
+    def __init__(self, x, y, settlement_colour = None):
+        self.settlement_colour = settlement_colour
+        self.coords = pc.PixelCoords(x, y)
+    
 class Tile:
     def __init__(self, type, number, tile_image, has_thief = False):
         self.type = type
@@ -21,6 +25,7 @@ class Tile:
         self.number = number
         self.has_thief = has_thief
         self.number = None
+        self.vertices = []
 
     def __str__(self):
         return f"Tile: {self.type}, {self.number}, {self.has_thief}"
@@ -52,8 +57,11 @@ class BoardGrabber:
 
         self.Tiles = None
         self.Centres = None
+        self.Vertices = None
 
         self.hasbeenread = False
+
+        self.lastDiceRoll = None
         # will need current and previous board state here
 
         if not self.vid.isOpened():
@@ -65,7 +73,6 @@ class BoardGrabber:
         return frame[y:y+h, x:x+w]
 
     def getFrame(self):
-        # return cv2.imread("catanImages/screenshot10:16:54.png")
         (ret, frame) = self.vid.read()
         if ret:
             return frame
@@ -123,7 +130,7 @@ class BoardGrabber:
         centres = []
 
         for i, (x2, y2) in enumerate(self.thresholder):
-            centres.append((x2, y2))
+            centres.append(pc.PixelCoords(x2, y2))
 
             bb_size = 40
             tile_img = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
@@ -201,6 +208,7 @@ class BoardGrabber:
         radius = 15 # 10
         threshRatio = 0.25 # 0.2 ?
 
+        vertices = []
         for (x,y) in self.thresholder.vertices():
 
             vertex = curr[y-radius:y+radius, x-radius:x+radius]
@@ -220,21 +228,28 @@ class BoardGrabber:
                 if currentNonZero > nonZeroMax:
                     nonZeroMax = currentNonZero
                 
-
             if nonZeroMax > threshRatio*(boxsize*boxsize):
                 cv2.putText(curr, f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                # print("__________________")
-                # print(f"ratio is {nonZeroMax/(boxsize*boxsize)}")
-                # print(f"String is {max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}")
                 cv2.circle(curr, (x,y), radius, (0,0,255), 1)
-
+                vertices.append(Vertex(x, y, settlement_colour = f"{max(thresholds, key=lambda k: cv2.countNonZero(thresholds[k]))}"))
             else:
                 # cv2.putText(curr, "None", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                pass
+                vertices.append(Vertex(x, y, settlement_colour = None))
 
+        self.Vertices = vertices
         cv2.imshow("Vertices", curr)
 
         return
+
+    def getRelatedSettlements(self):
+    
+        tile_radius = 100 ** 2
+        for i, (x,y) in enumerate(self.Centres):
+            vertex_distances = list(map(lambda t: pc.PixelCoords.distPixels(t.coords, pc.PixelCoords(x,y)), self.Vertices))
+            for j, dist in enumerate(vertex_distances):
+                if dist < tile_radius:
+                    self.Tiles[i].vertices.append(self.Vertices[j])
+                    # Woohoo this vertex is with this tile
 
     def classifyNumbers(self):
         # for tile in self.Tiles:
@@ -308,14 +323,18 @@ if __name__ == '__main__' :
     cv2.imshow("Tile overlay", tile_overlay)
     cv2.waitKey(1000)
 
-    input("Please place the number tiles in the centre of each hexagon and press enter when ready: ")
+    print("Please place the number tiles on each hexagon and the thief")
+    input("Press enter when ready: ")
 
     # Identify numbers and add it to the board state, along with an overlay for it
     # Store all the numbers in the tiles objects
     board_grabber.classifyNumbers()
 
     # Wait for user input to say everyone has placed their settlements and roads
+    print("Please have each player place their first two settlements and roads")
+    input("Press enter when ready: ")
     # Start main loop
+    
 
     # Set previous frame as current frame
 
@@ -324,10 +343,17 @@ if __name__ == '__main__' :
 
         # Check if thief has moved from previous round by comparing with previous frame
         board_grabber.findThiefTile()
-        # Update numbers based on thief 
 
         # Check where settlements are
         board_grabber.checkForSettlements()
+        board_grabber.getRelatedSettlements()
+
+        for i, tile in enumerate(board_grabber.Tiles):
+            print(i)
+            for vertex in tile.vertices:
+                print(vertex.settlement_colour)
+            print("----")
+        
 
         # Loop through settlements and check what each player should get based on latest 
         # dice roll result
@@ -343,6 +369,8 @@ if __name__ == '__main__' :
         
         # Wait for user input saying its the next turn
             # Later wait for a new dice roll and loop again after that
+        print("_______")
+        cv2.waitKey(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         time.sleep(0.2)
