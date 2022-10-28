@@ -18,18 +18,19 @@ def loadModel(modelpath):
     print("-------------------- Done! --------------------")
     return m
 
+if __name__ == '__main__' :
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", "--file", type=str, help="Path to the image to predict on")
-parser.add_argument("-m", "--model", type=str, help="Path to the model to use", default="model/epochs1000.hdf5")
-args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--file", type=str, help="Path to the image to predict on")
+    parser.add_argument("-m", "--model", type=str, help="Path to the model to use", default="model/epochs1000.hdf5")
+    args = parser.parse_args()
 
 
-m = loadModel(args.model)
+    m = loadModel(args.model)
 
-img = cv2.imread(args.file)
+    img = cv2.imread(args.file)
 
-print(predictNumberFromImg(img, m))
+    print(predictNumberFromImg(img, m))
 
 
 
