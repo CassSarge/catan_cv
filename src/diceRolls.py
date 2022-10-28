@@ -13,7 +13,6 @@ def cropToDie(img, colour):
     dilatedImg = imo.dilation(20, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     dieCropped = frame[y:y+h, x:x+w] # This image should be ballpark 200 pixels
-    cv2.imshow("Dilated img", dilatedImg)
     #cv2.imshow("Dice red cropped", redDieCropped)
     return dieCropped
 
@@ -92,8 +91,8 @@ if __name__ == '__main__' :
     # Define a video capture object
     vid = cv2.VideoCapture(1)
 
-    rNumList = [None,None,None,None,None,None,None,None]
-    yNumList = [None,None,None,None,None,None,None,None]
+    rNumList = [None]*15
+    yNumList = [None]*15
 
     dice_in_hand = True
 
