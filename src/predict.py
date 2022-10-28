@@ -1,10 +1,17 @@
+print("-------------- Importing keras --------------")
+print(" ")
 from keras.models import load_model
+print(" ")
+print(" -------------- Done! --------------")
 import cv2
 import numpy as np
 import argparse
 
+
 def predictNumberFromImg(img, m):
-    img = np.reshape(img, (1, 80, 80, 3))
+    img = cv2.resize(img, (80,80), interpolation=cv2.INTER_AREA)
+    img2 = np.repeat(img[:, :, np.newaxis], 3, axis=2)
+    img = np.reshape(img2, (1, 80, 80, 3))
     prediction = m.predict(img)
     classes = ['10', '11', '12', '2', '3', '4', '5', '6', '8', '9']
     idx = np.argmax(prediction)
