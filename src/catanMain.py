@@ -348,14 +348,22 @@ if __name__ == '__main__' :
         board_grabber.checkForSettlements()
         board_grabber.getRelatedSettlements()
 
-        for i, tile in enumerate(board_grabber.Tiles):
-            print(i)
-            for vertex in tile.vertices:
-                print(vertex.settlement_colour)
-            print("----")
+        # for i, tile in enumerate(board_grabber.Tiles):
+        #     print(i)
+        #     for vertex in tile.vertices:
+        #         print(vertex.settlement_colour)
+        #     print("----")
         
 
         # Loop through settlements and check what each player should get based on latest 
+        board_grabber.lastDiceRoll = 6
+
+        for tile in board_grabber.Tiles:
+            # print(f"{tile.number=} vs {board_grabber.lastDiceRoll=}")
+            if tile.number == board_grabber.lastDiceRoll:
+                for vertex in tile.vertices:
+                    if vertex.settlement_colour is not None:
+                        print(f"{vertex.settlement_colour} pick up a {tile.type}")
         # dice roll result
 
 
