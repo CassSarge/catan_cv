@@ -383,7 +383,9 @@ if __name__ == '__main__' :
         # Loop through settlements and check what each player should get based on latest 
         board_grabber.lastDiceRoll = 6
 
-        playerUpdates = defaultdict(int) 
+        playerColours = ["Blue", "Red", "Orange", "White"]
+        playerUpdates = {key : defaultdict(int) for key in playerColours}
+
         terminal_colours = {"Blue" : '\033[94m', "Orange" : '\033[93m', "Red" : '\033[91m', "White" : '\033[0m'}
 
         for tile in board_grabber.Tiles:
@@ -391,11 +393,15 @@ if __name__ == '__main__' :
             if tile.number == board_grabber.lastDiceRoll:
                 for vertex in tile.vertices:
                     if vertex.settlement_colour is not None:
-                        playerUpdates[(vertex.settlement_colour, tile.type)] += 1
+                        playerUpdates[vertex.settlement_colour][tile.resource] += 1
                         # print(f"{vertex.settlement_colour} pick up a {tile.type}")
 
-        for player, update in playerUpdates.items():
-            print(f"{terminal_colours[player[0]]}{player[0]} Player gets {update} {player[1]}{terminal_colours['White']}")
+        for colour in playerUpdates:
+            print(f"{terminal_colours[colour]}{colour} gets ", end="")
+            all_pickups = list(map(lambda x: f"{x[1]} {x[0]}", playerUpdates[colour].items()))
+            print(" and ".join(all_pickups))
+            print(terminal_colours["White"])
+
         
         # dice roll result
 
