@@ -1,5 +1,4 @@
 # import the opencv library
-from re import I
 import cv2
 import homography as hg
 import colourThreshold as ct
@@ -63,6 +62,9 @@ class BoardGrabber:
         self.hasbeenread = False
 
         self.lastDiceRoll = None
+
+        self.previousImage = None
+        self.latestImage = None
         # will need current and previous board state here
 
         if not self.vid.isOpened():
@@ -156,8 +158,16 @@ class BoardGrabber:
 
         return curr_overlay
     
+    def updateLatestFrame(self):
+        self.previousImage = self.latestImage
+        self.latestImage = self.getFlattenedFrame()
+        if self.previousImage is None:
+            self.previousImage = self.latestImage
+
+        return
+
     def findThiefTile(self, verbose = False, expected_blobs = 1):
-        curr = self.getFlattenedFrame()
+        curr = self.latestImage.copy()
         curr = cv2.cvtColor(curr, cv2.COLOR_BGR2GRAY)
 
         base = self.tilesImage.copy()
@@ -313,6 +323,7 @@ if __name__ == '__main__' :
 
     board_grabber = BoardGrabber(vid, templateImage, inlecture)
 
+
     # Get a good homography
     board_grabber.getHomographyTF()
 
@@ -336,15 +347,24 @@ if __name__ == '__main__' :
     print("Please have each player place their first two settlements and roads")
     input("Press enter when ready: ")
     # Start main loop
+    board_grabber.updateLatestFrame()
+    board_grabber.updateLatestFrame()
     
 
     # Set previous frame as current frame
 
+    # on a dice roll
     while(True):
-        # Get and show latest frame
+        diceroll = input("Enter dice roll: ")
 
-        # Check if thief has moved from previous round by comparing with previous frame
-        board_grabber.findThiefTile()
+        if diceroll == 7:
+            # Get and show latest frame
+            board_grabber.updateLatestFrame()
+            input("You have rolled a 7! Please move the thief to another Tile and press Enter!")
+            board_grabber.updateLatestFrame()
+
+            # Check if thief has moved from previous round by comparing with previous frame
+            board_grabber.findThiefTile()
 
         # Check where settlements are
         board_grabber.checkForSettlements()
@@ -372,7 +392,7 @@ if __name__ == '__main__' :
                         # print(f"{vertex.settlement_colour} pick up a {tile.type}")
 
         for player, update in playerUpdates.items():
-            print(f"{terminal_colours[player[0]]}{player[0]} Player gets {update} {player[1]}{terminal_colours["White"]}")
+            print(f"{terminal_colours[player[0]]}{player[0]} Player gets {update} {player[1]}{terminal_colours['White']}")
         
         # dice roll result
 
@@ -391,6 +411,14 @@ if __name__ == '__main__' :
         cv2.waitKey(0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        
+        print("Would anybody like to play a knight card?")
+        if input("Enter y/n: ") == "y":
+            board_grabber.updateLatestFrame()
+            print("Please move the thief to another Tile and press Enter!")
+            board_grabber.updateLatestFrame()
+            board_grabber.findThiefTile()
+
         time.sleep(0.2)
     
     # # After the loop release the cap object
