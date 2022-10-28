@@ -131,15 +131,6 @@ class BoardGrabber:
             most_likely_number = 0
             has_thief = i == self.thiefTile
 
-
-
-            #cv2.imshow("Current Tile", currentTileImg)
-            # for (k,v) in thresholds.items():
-            #     print(f"Count for {k} is {cv2.countNonZero(v)}")
-
-            # print out the key for the largest value size
-            # print(f"Tile {i} is {most_likely_type}")
-
             tiles.append(Tile(most_likely_type, most_likely_number, has_thief))
 
 
@@ -231,9 +222,6 @@ class BoardGrabber:
                 # cv2.putText(curr, "None", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
                 pass
 
-            
-
-
         cv2.imshow("Vertices", curr)
         cv2.waitKey(0)
 
@@ -253,31 +241,35 @@ if __name__ == '__main__' :
     # Define a video capture object
     if args.filename is None:
         vid = cv2.VideoCapture(args.video_index)
+    # If we are using a dummy video (still image) instead
     else:
         vid = dummyVid.dummyVideo(f"{args.filename}")
 
+    # Decide which set of lighting conditions to use for colour masks
     if args.location == "pnr":
         inlecture = False
     elif args.location == "lecture":
         inlecture = True
-
 
     # Ensure camera is working
     if not vid.isOpened():
         print("Cannot open camera")
         exit()
 
+    # Template image to perform homography to
     templateImage = f'{args.img_dir}/catanBoardTransparent2.png'
 
     board_grabber = BoardGrabber(vid, templateImage, inlecture)
-    board_grabber.getHomographyTF()
-    # print(board_grabber.tilesImage)
 
-    #cv2.waitKey(0)
+    # Get a good homography
+    board_grabber.getHomographyTF()
 
     cv2.imwrite(f"{args.img_dir}/adjustedImg2.png", board_grabber.tilesImage)
 
     cv2.destroyAllWindows()
+
+    # tiles, centers = board_grabber.getBoardState()
+    # cv2.waitKey(0)
 
     while(True):
         board_grabber.findThiefTile()
@@ -294,7 +286,6 @@ if __name__ == '__main__' :
             break
         time.sleep(0.2)
     
-
     # # After the loop release the cap object
     vid.release()
     # Destroy all the windows
