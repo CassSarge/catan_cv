@@ -74,7 +74,6 @@ def main():
     for image_batch, labels_batch in train_ds:
         print(image_batch.shape)
         print(labels_batch.shape)
-        print(image_batch)
         break
 
     AUTOTUNE = tf.data.AUTOTUNE
@@ -109,10 +108,18 @@ def main():
         metrics=["accuracy"],
     )
 
+    checkpoint_filepath = 'model/model1.hdf5'
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpoint_filepath,
+        monitor='val_loss',
+        mode='min',
+        save_best_only=True)
+
+
     model.summary()
 
     epochs = 150
-    history = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
+    history = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[model_checkpoint_callback])
 
     acc = history.history["accuracy"]
     val_acc = history.history["val_accuracy"]
