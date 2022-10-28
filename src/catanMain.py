@@ -25,7 +25,7 @@ class Tile:
         self.number = number
         self.has_thief = has_thief
         self.number = None
-        self.vertices = []
+        self.vertices = None
 
     def __str__(self):
         return f"Tile: {self.type}, {self.number}, {self.has_thief}"
@@ -245,6 +245,7 @@ class BoardGrabber:
     
         tile_radius = 100 ** 2
         for i, (x,y) in enumerate(self.Centres):
+            self.Tiles[i].vertices = []
             vertex_distances = list(map(lambda t: pc.PixelCoords.distPixels(t.coords, pc.PixelCoords(x,y)), self.Vertices))
             for j, dist in enumerate(vertex_distances):
                 if dist < tile_radius:
@@ -364,6 +365,7 @@ if __name__ == '__main__' :
                 for vertex in tile.vertices:
                     if vertex.settlement_colour is not None:
                         print(f"{vertex.settlement_colour} pick up a {tile.type}")
+        
         # dice roll result
 
 
