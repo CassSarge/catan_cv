@@ -1,4 +1,5 @@
 # import the opencv library
+from re import I
 import cv2
 import homography as hg
 import colourThreshold as ct
@@ -9,13 +10,17 @@ import pixelCoords as pc
 import dummyVideo as dummyVid
 from skimage.metrics import structural_similarity as compare_ssim
 import time
-# from adaptiveHistogramEqualisation import adaptiveHistEq
+import identifyNumbers as idNums
+import predict as pd
+
 
 class Tile:
-    def __init__(self, type, number, has_thief = False):
+    def __init__(self, type, number, tile_image, has_thief = False):
         self.type = type
+        self.tile_image = tile_image
         self.number = number
         self.has_thief = has_thief
+        self.number = None
 
     def __str__(self):
         return f"Tile: {self.type}, {self.number}, {self.has_thief}"
@@ -121,8 +126,8 @@ class BoardGrabber:
             centres.append((x2, y2))
 
             bb_size = 40
-            tile = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
-            thresholds = ct.getTileThresholds(tile, self.inlecture)
+            tile_img = curr[y2-bb_size:y2+bb_size, x2-bb_size:x2+bb_size]
+            thresholds = ct.getTileThresholds(tile_img, self.inlecture)
 
             cv2.circle(curr_overlay, (x2, y2), 5, (0, 0, 255), -1)
             cv2.rectangle(
@@ -134,7 +139,7 @@ class BoardGrabber:
             most_likely_number = 0
             has_thief = i == self.thiefTile
 
-            tiles.append(Tile(most_likely_type, most_likely_number, has_thief))
+            tiles.append(Tile(most_likely_type, most_likely_number, tile_img, has_thief))
 
         self.Tiles = tiles
         self.Centres = centres
@@ -231,6 +236,32 @@ class BoardGrabber:
 
         return
 
+    def classifyNumbers(self):
+        # for tile in self.Tiles:
+        #     cv2.imshow("Tile", tile.tile_image)
+        #     cv2.waitKey(0)
+
+        m = pd.load_model("model/epochs1000.hdf5")
+
+        bb_size = 45
+
+        image = board_grabber.getFlattenedFrame()
+
+        # for each center, grab the bounding box aronud the center and combine them into a list
+        tile_subimages = []
+        for i, (x,y) in enumerate(self.Centres):
+            tile_subimages.append(image[y-bb_size:y+bb_size, x-bb_size:x+bb_size])
+
+        # for each tile image, call idNums.getCircularFeatures
+        number_tiles = [idNums.getCircularFeatures(cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)) for tile in tile_subimages]
+        
+        for i, tile in enumerate(number_tiles):
+            if tile is not None:
+                #cv2.imshow("Current tile", tile)
+                self.Tiles[i].number = pd.predictNumberFromImg(tile, m)
+                #print(self.Tiles[i].number)
+                #cv2.waitKey(0)
+                
 
 if __name__ == '__main__' :
 
@@ -281,6 +312,7 @@ if __name__ == '__main__' :
 
     # Identify numbers and add it to the board state, along with an overlay for it
     # Store all the numbers in the tiles objects
+    board_grabber.classifyNumbers()
 
     # Wait for user input to say everyone has placed their settlements and roads
     # Start main loop
