@@ -284,15 +284,22 @@ class BoardGrabber:
         # for each tile image, call idNums.getCircularFeatures
         number_tiles = [idNums.getCircularFeatures(cv2.cvtColor(tile, cv2.COLOR_BGR2GRAY)) for tile in tile_subimages]
         
+
+        #make copy of blank board
+        numberedBlank = self.tilesImage.copy()
+        
+
         for i, tile in enumerate(number_tiles):
             if tile is not None:
                 #cv2.imshow("Current tile", tile)
                 self.Tiles[i].number = pd.predictNumberFromImg(tile, m)
-                #print(self.Tiles[i].number)
-                #cv2.waitKey(0)
+                numberedBlank = cv2.puttext(numberedBlank, self.Tiles[i].number, (self.Centers[i][0],self.Centers[i][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+                
             else:
                 self.Tiles[i].has_thief = True
                 self.Tiles[i].type = "desert"
+
+        cv2.imshow(numberedBlank)
                 
 
 if __name__ == '__main__' :
