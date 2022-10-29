@@ -78,6 +78,8 @@ class BoardGrabber:
         return frame[y:y+h, x:x+w]
 
     def getFrame(self):
+        for _ in range(4):
+            self.vid.grab()
         (ret, frame) = self.vid.read()
         if ret:
             return frame
