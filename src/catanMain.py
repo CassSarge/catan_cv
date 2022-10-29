@@ -374,9 +374,9 @@ if __name__ == '__main__' :
 
     # on a dice roll
     while(True):
-        diceroll = input("Enter dice roll: ")
+        board_grabber.lastDiceRoll = int(input("Enter dice roll: "))
 
-        if diceroll == 7:
+        if board_grabber.lastDiceRoll == 7:
             # Get and show latest frame
             board_grabber.updateLatestFrame()
             input("You have rolled a 7! Please move the thief to another Tile and press Enter!")
@@ -395,9 +395,6 @@ if __name__ == '__main__' :
         #         print(vertex.settlement_colour)
         #     print("----")
         
-
-        # Loop through settlements and check what each player should get based on latest 
-        board_grabber.lastDiceRoll = 6
 
         playerColours = ["Blue", "Red", "Orange", "White"]
         playerUpdates = {key : defaultdict(int) for key in playerColours}
