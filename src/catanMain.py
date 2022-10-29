@@ -295,13 +295,13 @@ class BoardGrabber:
             if tile is not None:
                 #cv2.imshow("Current tile", tile)
                 self.Tiles[i].number = pd.predictNumberFromImg(tile, m)
-                numberedBlank = cv2.puttext(numberedBlank, self.Tiles[i].number, (self.Centers[i][0],self.Centers[i][1]), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
+                cv2.putText(numberedBlank, str(self.Tiles[i].number), (self.Centres[i].x, self.Centres[i].y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2) 
                 
             else:
                 self.Tiles[i].has_thief = True
                 self.Tiles[i].type = "desert"
 
-        cv2.imshow(numberedBlank)
+        cv2.imshow("Numbers Overlay", numberedBlank)
                 
 
 if __name__ == '__main__' :
