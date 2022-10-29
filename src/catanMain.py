@@ -406,13 +406,18 @@ if __name__ == '__main__' :
             if tile.number == board_grabber.lastDiceRoll:
                 for vertex in tile.vertices:
                     if vertex.settlement_colour is not None:
-                        playerUpdates[vertex.settlement_colour][tile.resource] += 1
+                        playerUpdates[vertex.settlement_colour][tile.type] += 1
                         # print(f"{vertex.settlement_colour} pick up a {tile.type}")
 
         for colour in playerUpdates:
             print(f"{terminal_colours[colour]}{colour} gets ", end="")
             all_pickups = list(map(lambda x: f"{x[1]} {x[0]}", playerUpdates[colour].items()))
-            print(" and ".join(all_pickups))
+            # print(all_pickups)
+            # print(f"{len(all_pickups)=}")
+            if len(all_pickups) == 0:
+                print("nothing :(")
+            else:
+                print(" and ".join(all_pickups))
             print(terminal_colours["White"])
 
         
