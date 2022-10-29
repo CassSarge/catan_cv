@@ -331,6 +331,11 @@ if __name__ == '__main__' :
     if not vid.isOpened():
         print("Cannot open camera")
         exit()
+    
+    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    print("Setting highest resolution")
+    time.sleep(0.5)
 
     # Template image to perform homography to
     templateImage = f'{args.img_dir}/catanBoardTransparent2.png'
