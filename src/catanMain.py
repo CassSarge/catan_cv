@@ -356,15 +356,17 @@ if __name__ == '__main__' :
     cv2.waitKey(1000)
 
     print("Please place the number tiles on each hexagon and the thief")
-    input("Press enter when ready: ")
+    print("Press any key when ready: ")
+    cv2.waitKey(0)
 
     # Identify numbers and add it to the board state, along with an overlay for it
     # Store all the numbers in the tiles objects
     board_grabber.classifyNumbers()
 
-    # Wait for user input to say everyone has placed their settlements and roads
+    # Wait for user to say everyone has placed their settlements and roads
     print("Please have each player place their first two settlements and roads")
-    input("Press enter when ready: ")
+    print("Press any key when ready: ")
+    cv2.waitKey(0)
     # Start main loop
     board_grabber.updateLatestFrame()
     board_grabber.updateLatestFrame()
@@ -379,7 +381,8 @@ if __name__ == '__main__' :
         if board_grabber.lastDiceRoll == 7:
             # Get and show latest frame
             board_grabber.updateLatestFrame()
-            input("You have rolled a 7! Please move the thief to another Tile and press Enter!")
+            print("You have rolled a 7! Please move the thief to another Tile and press any key!")
+            cv2.waitKey(0)
             board_grabber.updateLatestFrame()
 
             # Check if thief has moved from previous round by comparing with previous frame
@@ -422,8 +425,6 @@ if __name__ == '__main__' :
 
         
         # dice roll result
-
-
 
         # print(len(tiles))
         # print(tiles[0:3])
