@@ -2,13 +2,12 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
-import numpy as np
 
-def cropToDie(img, colour):
+def cropToDie(img, colour, inlecture):
     if colour == 'r':
-        img_threshold = ct.getRedDiceThreshold(img, inlecture=False)
+        img_threshold = ct.getRedDiceThreshold(img, inlecture)
     elif colour == 'y':
-        img_threshold = ct.getYellowDiceThreshold(img, inlecture=False)
+        img_threshold = ct.getYellowDiceThreshold(img, inlecture)
     # cv2.imshow("Dice thresh", img_threshold)
     dilatedImg = imo.dilation(20, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
@@ -16,12 +15,12 @@ def cropToDie(img, colour):
     #cv2.imshow("Dice red cropped", redDieCropped)
     return dieCropped
 
-def getDieMask(img, colour):
+def getDieMask(img, colour, inlecture):
 
     if colour == 'r':
-        dieThresh = ct.getRedDiceThreshold(img)
+        dieThresh = ct.getRedDiceThreshold(img, inlecture)
     elif colour == 'y':
-        dieThresh = ct.getYellowDiceThreshold(img)
+        dieThresh = ct.getYellowDiceThreshold(img, inlecture)
     
     mask = cv2.bitwise_not(dieThresh) # invert
     mask = imo.erode(2, mask)
@@ -85,11 +84,19 @@ if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Dice rolling with connected components')
     parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
+    parser.add_argument("-l", "--location", help="Location for colour thresholding, 'pnr' or 'lecture'", default="pnr")
+
 
     args = parser.parse_args()
+    if args.location == "pnr":
+        print("Using PNR colour thresholding")
+        inlecture = False
+    elif args.location == "lecture":
+        print("Using lecture colour thresholds")
+        inlecture = True
 
     # Define a video capture object
-    vid = cv2.VideoCapture(1)
+    vid = cv2.VideoCapture(args.video_index)
 
     rNumList = [None]*15
     yNumList = [None]*15
@@ -113,16 +120,18 @@ if __name__ == '__main__' :
         cv2.waitKey(10)
 
         # Crop to the dice, get the mask for this colour
-        dieCropped = cropToDie(frame, 'r')
-        mask = getDieMask(dieCropped, 'r')
+        dieCropped = cropToDie(frame, 'r', inlecture)
+        mask = getDieMask(dieCropped, 'r', inlecture)
+        cv2.imshow("Red Mask", mask)
         # Count number of pips
         redNumPips = countPips(mask, dieCropped)
         # Put this number at the start of the list, remove last entry
         rNumList.insert(0, redNumPips)
         rNumList.pop()
 
-        dieCropped = cropToDie(frame, 'y')        
-        mask = getDieMask(dieCropped, 'y')
+        dieCropped = cropToDie(frame, 'y', inlecture)        
+        mask = getDieMask(dieCropped, 'y', inlecture)
+        cv2.imshow("Yellow Mask", mask)
         yellowNumPips = countPips(mask, dieCropped)
         yNumList.insert(0, yellowNumPips)
         yNumList.pop()
