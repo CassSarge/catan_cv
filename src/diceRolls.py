@@ -2,6 +2,7 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
+import time
 
 def cropToDie(img, colour, inlecture):
     if colour == 'r':
@@ -9,7 +10,7 @@ def cropToDie(img, colour, inlecture):
     elif colour == 'y':
         img_threshold = ct.getYellowDiceThreshold(img, inlecture)
     # cv2.imshow("Dice thresh", img_threshold)
-    dilatedImg = imo.dilation(20, img_threshold)
+    dilatedImg = imo.dilation(25, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     dieCropped = frame[y:y+h, x:x+w] # This image should be ballpark 200 pixels
     #cv2.imshow("Dice red cropped", redDieCropped)
@@ -97,7 +98,9 @@ if __name__ == '__main__' :
 
     # Define a video capture object
     vid = cv2.VideoCapture(args.video_index)
-
+    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    
     rNumList = [None]*15
     yNumList = [None]*15
 
@@ -122,7 +125,6 @@ if __name__ == '__main__' :
         # Crop to the dice, get the mask for this colour
         dieCropped = cropToDie(frame, 'r', inlecture)
         mask = getDieMask(dieCropped, 'r', inlecture)
-        cv2.imshow("Red Mask", mask)
         # Count number of pips
         redNumPips = countPips(mask, dieCropped)
         # Put this number at the start of the list, remove last entry
@@ -131,7 +133,6 @@ if __name__ == '__main__' :
 
         dieCropped = cropToDie(frame, 'y', inlecture)        
         mask = getDieMask(dieCropped, 'y', inlecture)
-        cv2.imshow("Yellow Mask", mask)
         yellowNumPips = countPips(mask, dieCropped)
         yNumList.insert(0, yellowNumPips)
         yNumList.pop()
@@ -154,8 +155,11 @@ if __name__ == '__main__' :
             if dice_in_hand == True:
                 dice_in_hand = False
             # print(f"[Red] is {redNumPipsMode}, [Yellow] is {yellowNumPipsMode}")
-                print(f"{redNumPipsMode + yellowNumPipsMode}")
-
+                result = redNumPipsMode + yellowNumPipsMode
+                if result > 12:
+                    result = 12
+                print(f"{result}")
+        time.sleep(0.2)
 
     # After the loop release the cap object
     vid.release()
