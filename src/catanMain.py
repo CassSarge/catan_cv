@@ -214,6 +214,11 @@ class BoardGrabber:
             else:
                 print("I think the Thief hasnt moved")
 
+        # Reset all tiles to not have thief
+        for tile in self.Tiles:
+            tile.hasThief = False
+
+        self.Tiles[self.thiefTile].has_thief = True
 
         return centroids
     
@@ -317,9 +322,12 @@ if __name__ == '__main__' :
     # Define a video capture object
     if args.filename is None:
         vid = cv2.VideoCapture(args.video_index)
+        vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
     # If we are using a dummy video (still image) instead
     else:
         vid = dummyVid.dummyVideo(f"{args.filename}")
+
 
     # Decide which set of lighting conditions to use for colour masks
     if args.location == "pnr":
@@ -334,7 +342,6 @@ if __name__ == '__main__' :
     
     vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    print("Setting highest resolution")
     time.sleep(0.5)
 
     # Template image to perform homography to
@@ -356,15 +363,17 @@ if __name__ == '__main__' :
     cv2.waitKey(1000)
 
     print("Please place the number tiles on each hexagon and the thief")
-    input("Press enter when ready: ")
+    print("Press any key when ready: ")
+    cv2.waitKey(0)
 
     # Identify numbers and add it to the board state, along with an overlay for it
     # Store all the numbers in the tiles objects
     board_grabber.classifyNumbers()
 
-    # Wait for user input to say everyone has placed their settlements and roads
+    # Wait for user to say everyone has placed their settlements and roads
     print("Please have each player place their first two settlements and roads")
-    input("Press enter when ready: ")
+    print("Press any key when ready: ")
+    cv2.waitKey(0)
     # Start main loop
     board_grabber.updateLatestFrame()
     board_grabber.updateLatestFrame()
@@ -379,7 +388,8 @@ if __name__ == '__main__' :
         if board_grabber.lastDiceRoll == 7:
             # Get and show latest frame
             board_grabber.updateLatestFrame()
-            input("You have rolled a 7! Please move the thief to another Tile and press Enter!")
+            print("You have rolled a 7! Please move the thief to another Tile and press any key!")
+            cv2.waitKey(0)
             board_grabber.updateLatestFrame()
 
             # Check if thief has moved from previous round by comparing with previous frame
@@ -403,7 +413,7 @@ if __name__ == '__main__' :
 
         for tile in board_grabber.Tiles:
             # print(f"{tile.number=} vs {board_grabber.lastDiceRoll=}")
-            if tile.number == board_grabber.lastDiceRoll:
+            if tile.number == board_grabber.lastDiceRoll and tile.has_thief is False:
                 for vertex in tile.vertices:
                     if vertex.settlement_colour is not None:
                         playerUpdates[vertex.settlement_colour][tile.type] += 1
@@ -423,8 +433,6 @@ if __name__ == '__main__' :
         
         # dice roll result
 
-
-
         # print(len(tiles))
         # print(tiles[0:3])
         # print(tiles[3:7])
@@ -440,11 +448,17 @@ if __name__ == '__main__' :
             break
         
         print("Would anybody like to play a knight card?")
-        if input("Enter y/n: ") == "y":
-            board_grabber.updateLatestFrame()
-            print("Please move the thief to another Tile and press Enter!")
-            board_grabber.updateLatestFrame()
-            board_grabber.findThiefTile()
+        # TODO Need to change this to a cv2.waitKey(0) and a ord('y') or ord('n') check
+        print("Please enter y or n: ")
+        while True:
+            if cv2.waitKey(30) & 0xFF == ord('n'):
+                break
+            elif cv2.waitKey(30) & 0xFF == ord('y'):
+                board_grabber.updateLatestFrame()
+                print("Please move the thief to another Tile and press Enter!")
+                board_grabber.updateLatestFrame()
+                board_grabber.findThiefTile()
+                break
 
         time.sleep(0.2)
     
