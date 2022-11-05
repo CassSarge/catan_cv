@@ -22,8 +22,8 @@ def getRedBuildingsThreshold(rgb_image, inlecture=False):
 def getBlueBuildingsThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_bbuild = np.array([0.526*179,0.000*255,0.000*255])
-        upper_bbuild = np.array([0.636*179,1.000*255,1.000*255])
+        lower_bbuild = np.array([0.556*179,0.152*255,0.333*255])
+        upper_bbuild = np.array([0.612*179,0.908*255,0.733*255])
     else:
         # PNR Threshold
         lower_bbuild = np.array([0.595*179,0.218*255,0.141*255])
@@ -73,8 +73,8 @@ def getWhiteBuildingsThreshold(rgb_image, inlecture=False):
 def getRedDiceThreshold(rgb_image, inlecture=False):
     if inlecture:
         # Lecture theatre threshold
-        lower_rdice = np.array([0.924*179,0.100*255,0.138*255])
-        upper_rdice = np.array([0.110*179,1.000*255,0.827*255])
+        lower_rdice = np.array([0.936*179,0.329*255,0.231*255])
+        upper_rdice = np.array([0.090*179,1.000*255,0.727*255])
     else:
         # PNR Threshold
         lower_rdice = np.array([0.950*179,0.500*255,0.000*255])
