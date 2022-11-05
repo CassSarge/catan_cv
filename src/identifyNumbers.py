@@ -9,37 +9,17 @@ def getCircularFeatures(im_base):
     im = im_base.copy()
 
     #expectation of 18 number tiles placed in board
-    # im = cv2.equalizeHist(im)
     im_blur = im.copy()
-    # im_blur = cv2.GaussianBlur(im, (3,3), cv2.BORDER_DEFAULT)
-
-    # print(im_blur.shape)
 
     #detect only one circle
     circular_features = cv2.HoughCircles(im_blur, cv2.HOUGH_GRADIENT, 1, 10, param1=60, param2=30, minRadius=15, maxRadius=25)
     if (circular_features is None):
         print("No circles found")
         return None
-    # print("here")
-    # print(circular_features)
     circular_features = np.around(circular_features).astype("uint16")
 
 
-    # print(circular_features[:,:,:])
-
     for i in circular_features[0,:]:
-        # print(i)
-        
-        # # draw the outer circle
-        # cv2.circle(im,(i[0],i[1]),i[2],(0,255,0),2)
-        # # draw the center of the circle
-        # cv2.circle(im,(i[0],i[1]),2,(0,0,255),3)
-
-        # # if pixel is outside of the circle, set it to 0
-        # for x in range(im.shape[0]):
-        #     for y in range(im.shape[1]):
-        #         if (x-i[0])**2 + (y-i[1])**2 > i[2]**2:
-        #             im[x,y] = 0
 
         shrink_radii = 1
         im_mask = np.zeros(im.shape, dtype=np.uint8)
@@ -49,27 +29,12 @@ def getCircularFeatures(im_base):
         # crop the image to the circle
         cropped_im = masked_image[i[1]-i[2]:i[1]+i[2], i[0]-i[2]:i[0]+i[2]]
 
-    
-    
-
-    
-
-    # cv2.imshow('detected circles',cropped_im)
-    # cv2.waitKey(0)
-
-
-
     return cropped_im
 
 
 
 def getCircular(im):
 
-    #increase image contrast
-    #im = cv2.equalizeHist(im)
-
-    # Set our filtering parameters
-    # Initialize parameter setting using cv2.SimpleBlobDetector
     params = cv2.SimpleBlobDetector_Params()
 
     # Set Area filtering parameters
@@ -108,7 +73,6 @@ def getCircular(im):
     cv2.imshow("Filtering Circular Blobs Only", blobs)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
 
     return 0
 
