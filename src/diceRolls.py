@@ -2,26 +2,26 @@ import cv2
 import colourThreshold as ct
 import imgMorphologyOperations as imo
 import argparse
-import numpy as np
+import time
 
-def cropToDie(img, colour):
+def cropToDie(img, colour, inlecture):
     if colour == 'r':
-        img_threshold = ct.getRedDiceThreshold(img, inlecture=False)
+        img_threshold = ct.getRedDiceThreshold(img, inlecture)
     elif colour == 'y':
-        img_threshold = ct.getYellowDiceThreshold(img, inlecture=False)
+        img_threshold = ct.getYellowDiceThreshold(img, inlecture)
     # cv2.imshow("Dice thresh", img_threshold)
-    dilatedImg = imo.dilation(20, img_threshold)
+    dilatedImg = imo.dilation(25, img_threshold)
     x,y,w,h = imo.largestContourDetect(frame, dilatedImg)
     dieCropped = frame[y:y+h, x:x+w] # This image should be ballpark 200 pixels
     #cv2.imshow("Dice red cropped", redDieCropped)
     return dieCropped
 
-def getDieMask(img, colour):
+def getDieMask(img, colour, inlecture):
 
     if colour == 'r':
-        dieThresh = ct.getRedDiceThreshold(img)
+        dieThresh = ct.getRedDiceThreshold(img, inlecture)
     elif colour == 'y':
-        dieThresh = ct.getYellowDiceThreshold(img)
+        dieThresh = ct.getYellowDiceThreshold(img, inlecture)
     
     mask = cv2.bitwise_not(dieThresh) # invert
     mask = imo.erode(2, mask)
@@ -38,20 +38,7 @@ def countPips(mask, dieCropped):
     output = dieCropped.copy()
     # loop over the number of unique connected component labels
     for i in range(0, numLabels):
-        # if this is the first component then we examine the
-        # *background* (typically we would just ignore this
-        # component in our loop)
-        # if i == 0:
-            # text = "examining component {}/{} (background)".format(
-                # i + 1, numLabels)
-        # otherwise, we are examining an actual connected component
-        # else:
-            # text = "examining component {}/{}".format( i + 1, numLabels)
-        # print a status message update for the current connected
-        # component
-        # print("[INFO] {}".format(text))
-        # extract the connected component statistics and centroid for
-        # the current label
+
         x = stats[i, cv2.CC_STAT_LEFT]
         y = stats[i, cv2.CC_STAT_TOP]
         w = stats[i, cv2.CC_STAT_WIDTH]
@@ -60,21 +47,13 @@ def countPips(mask, dieCropped):
         (cX, cY) = centroids[i]
         
         if area > 200 and area < 6000:
-            # print("[INFO] area is {}".format(area))
             cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 3)
             cv2.circle(output, (int(cX), int(cY)), 4, (0, 0, 255), -1)
-            # componentMask = (labels == i).astype("uint8") * 255
-            # show our output image and connected component mask
-            #cv2.imshow("Connected Component", componentMask)
+
             numPips = numPips + 1
         else:
-            #print("Skipped component")
             pass
 
-   # print("[INFO] Dice roll result is {}".format(numPips))
-    # cv2.imshow("Output", output)
-    # cv2.imshow("Mask", mask)
-    # cv2.waitKey(0)
     if numPips == 0:
         numPips = None
 
@@ -85,12 +64,22 @@ if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Dice rolling with connected components')
     parser.add_argument("-v", '--video_index', help='Index of video to process', type=int, default=0)
+    parser.add_argument("-l", "--location", help="Location for colour thresholding, 'pnr' or 'lecture'", default="pnr")
+
 
     args = parser.parse_args()
+    if args.location == "pnr":
+        print("Using PNR colour thresholding")
+        inlecture = False
+    elif args.location == "lecture":
+        print("Using lecture colour thresholds")
+        inlecture = True
 
     # Define a video capture object
-    vid = cv2.VideoCapture(1)
-
+    vid = cv2.VideoCapture(args.video_index)
+    vid.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    vid.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    
     rNumList = [None]*15
     yNumList = [None]*15
 
@@ -113,16 +102,16 @@ if __name__ == '__main__' :
         cv2.waitKey(10)
 
         # Crop to the dice, get the mask for this colour
-        dieCropped = cropToDie(frame, 'r')
-        mask = getDieMask(dieCropped, 'r')
+        dieCropped = cropToDie(frame, 'r', inlecture)
+        mask = getDieMask(dieCropped, 'r', inlecture)
         # Count number of pips
         redNumPips = countPips(mask, dieCropped)
         # Put this number at the start of the list, remove last entry
         rNumList.insert(0, redNumPips)
         rNumList.pop()
 
-        dieCropped = cropToDie(frame, 'y')        
-        mask = getDieMask(dieCropped, 'y')
+        dieCropped = cropToDie(frame, 'y', inlecture)        
+        mask = getDieMask(dieCropped, 'y', inlecture)
         yellowNumPips = countPips(mask, dieCropped)
         yNumList.insert(0, yellowNumPips)
         yNumList.pop()
@@ -145,8 +134,11 @@ if __name__ == '__main__' :
             if dice_in_hand == True:
                 dice_in_hand = False
             # print(f"[Red] is {redNumPipsMode}, [Yellow] is {yellowNumPipsMode}")
-                print(f"{redNumPipsMode + yellowNumPipsMode}")
-
+                result = redNumPipsMode + yellowNumPipsMode
+                if result > 12:
+                    result = 12
+                print(f"{result}")
+        time.sleep(0.2)
 
     # After the loop release the cap object
     vid.release()
