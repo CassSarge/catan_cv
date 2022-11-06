@@ -38,20 +38,7 @@ def countPips(mask, dieCropped):
     output = dieCropped.copy()
     # loop over the number of unique connected component labels
     for i in range(0, numLabels):
-        # if this is the first component then we examine the
-        # *background* (typically we would just ignore this
-        # component in our loop)
-        # if i == 0:
-            # text = "examining component {}/{} (background)".format(
-                # i + 1, numLabels)
-        # otherwise, we are examining an actual connected component
-        # else:
-            # text = "examining component {}/{}".format( i + 1, numLabels)
-        # print a status message update for the current connected
-        # component
-        # print("[INFO] {}".format(text))
-        # extract the connected component statistics and centroid for
-        # the current label
+
         x = stats[i, cv2.CC_STAT_LEFT]
         y = stats[i, cv2.CC_STAT_TOP]
         w = stats[i, cv2.CC_STAT_WIDTH]
@@ -60,21 +47,13 @@ def countPips(mask, dieCropped):
         (cX, cY) = centroids[i]
         
         if area > 200 and area < 6000:
-            # print("[INFO] area is {}".format(area))
             cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 3)
             cv2.circle(output, (int(cX), int(cY)), 4, (0, 0, 255), -1)
-            # componentMask = (labels == i).astype("uint8") * 255
-            # show our output image and connected component mask
-            #cv2.imshow("Connected Component", componentMask)
+
             numPips = numPips + 1
         else:
-            #print("Skipped component")
             pass
 
-   # print("[INFO] Dice roll result is {}".format(numPips))
-    # cv2.imshow("Output", output)
-    # cv2.imshow("Mask", mask)
-    # cv2.waitKey(0)
     if numPips == 0:
         numPips = None
 
