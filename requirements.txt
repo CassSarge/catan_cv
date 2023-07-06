@@ -52,6 +52,6 @@ termcolor==2.0.1
 tifffile==2022.10.10
 typing-extensions==4.4.0
 urllib3==1.26.12
-Werkzeug==2.2.2
+Werkzeug==2.2.3
 wrapt==1.14.1
 zipp==3.10.0
